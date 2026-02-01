@@ -20,6 +20,7 @@ import OwnerVerify from "../public/Login & signup pages/owner/Verify";
 import OwnerNewPassword from "../public/Login & signup pages/owner/NewPassword";
 import OwnerSuccess from "../public/Login & signup pages/owner/Success";
 
+
 function App() {
   useEffect(() => {
     if (!localStorage.getItem("users")) {
@@ -59,7 +60,16 @@ function App() {
         <Route path="/owner/verify" element={<OwnerVerify />} />
         <Route path="/owner/new-password" element={<OwnerNewPassword />} />
         <Route path="/owner/success" element={<OwnerSuccess />} />
+
+
+
+          {/* owner subroutes */}
+          <Route path = "/owner/dashboard/uploadSongs" element = {<Owner/>}/>
+          <Route path = "/owner/dashboard/uploadContant" element = {<Owner/>}/>
       </Routes>
+
+    
+
     </>
   );
 }

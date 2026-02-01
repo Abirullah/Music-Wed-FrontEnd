@@ -5,6 +5,8 @@ import Sidebar from "./Parts/SideBar";
 import OwnerUploads from "./OwnerUploads";
 import OwnerStatement from "./OwnerStatement";
 import OwnerPrivacyAndContent from "./OwnerPrivacyAndContent";
+import UploadASong from "./SubPages/UploadASong"
+import UploadAContant from "./SubPages/UploadAContant"
 
 function Owner() {
   const [currentPart, setCurrentPart] = useState(0);
@@ -16,6 +18,10 @@ function Owner() {
     "/owner/statement": 1,
     "/owner/upload": 2,
     "/owner/piracy": 3,
+    //subParts
+    "/owner/dashBoard/uploadSongs" :4,
+    "/owner/dashBoard/uploadContant" : 5,
+    
   };
 
   // Update currentPart when route changes
@@ -40,6 +46,12 @@ function Owner() {
       break;
     case 3:
       content = <OwnerPrivacyAndContent />;
+      break;
+          case 4:
+      content = <UploadASong />;
+      break;
+          case 5:
+      content = <UploadAContant />;
       break;
     default:
       content = <OwnerDishBoard />;

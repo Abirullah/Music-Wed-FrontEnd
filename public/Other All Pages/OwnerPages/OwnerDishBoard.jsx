@@ -1,7 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import SearchBar from "./Parts/SearchBar";
 import Img from "../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 
+
+
+
 export default function DashboardHome() {
+
+  const navigate = useNavigate()
 
     const uploads = [
       { id: 1, type: "music", title: "Lorem ipsum" },
@@ -13,6 +19,39 @@ export default function DashboardHome() {
       { id: 7, type: "music", title: "Lorem ipsum" },
       { id: 8, type: "video", title: "Lorem ipsum" },
     ];
+
+
+    function UploadCard({ title, desc, bg, borderColor, svgIcon, iconBg , Path}) {
+  return (
+    <div
+      className={`${bg} border ${borderColor} rounded-xl p-8 gap-5 flex flex-col justify-between shadow-sm hover:shadow-md transition`}
+     
+    >
+      <div className="flex gap-6">
+        <div>
+          <div className={`w-15 h-15 flex items-center justify-center rounded-lg shadow-md ${iconBg}`}>
+            {svgIcon}
+          </div>
+        </div>
+        <div>
+          <h4 className="text-lg font-bold mb-2">{title}</h4>
+          <p className="text-gray-800 ">{desc}</p>
+        </div>
+      </div>
+
+
+
+      <button
+       onClick={() => navigate(Path)}
+        text="Upload"
+        className="bg-gray-900 hover:bg-black text-white h-13 rounded-lg  text-xl font-semibold w-[80%] self-center"
+      >Upload</button>
+      
+
+    </div>
+    
+  );
+}
 
 
 
@@ -72,6 +111,7 @@ export default function DashboardHome() {
               </svg>
             }
             iconBg="bg-[rgb(167,173,230)]/20"
+            Path="/owner/dashBoard/uploadSongs"
           />
           <UploadCard
             title="Upload your content"
@@ -94,6 +134,7 @@ export default function DashboardHome() {
               </svg>
             }
             iconBg="bg-[#fbbf24]/20"
+            Path="/owner/dashBoard/uploadContant"
           />
         </div>
 
@@ -221,30 +262,7 @@ function Stat({ label, value, color }) {
   );
 }
 
-function UploadCard({ title, desc, bg, borderColor, svgIcon, iconBg }) {
-  return (
-    <div
-      className={`${bg} border ${borderColor} rounded-xl p-8 gap-5 flex flex-col justify-between shadow-sm hover:shadow-md transition`}
-    >
-      <div className="flex gap-6">
-        <div>
-          <div className={`w-15 h-15 flex items-center justify-center rounded-lg shadow-md ${iconBg}`}>
-            {svgIcon}
-          </div>
-        </div>
-        <div>
-          <h4 className="text-lg font-bold mb-2">{title}</h4>
-          <p className="text-gray-800 ">{desc}</p>
-        </div>
-      </div>
 
-      <button
-        text="Upload"
-        className="bg-gray-900 hover:bg-black text-white h-13 rounded-lg  text-xl font-semibold w-[80%] self-center"
-      >Upload</button>
-    </div>
-  );
-}
 
 function Summary({ label, value, color = "text-black" }) {
   return (

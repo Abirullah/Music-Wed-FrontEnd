@@ -18,17 +18,24 @@ export default function NavBar({
     Role : "user",
   });
 
-  useEffect(() => {
+useEffect(() => {
+  try {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
     if (currentUser) {
       setIsAuthenticated(true);
       setUserProfile({
         name: currentUser.fullName,
         profilePic: HerImg,
-        Role : currentUser.Role,
+        Role: currentUser.Role,
       });
     }
-  }, []);
+  } catch (error) {
+    console.error("Invalid JSON in localStorage:", error);
+    localStorage.removeItem("currentUser");
+  }
+}, []);
+
 
   const navigate = useNavigate();
 

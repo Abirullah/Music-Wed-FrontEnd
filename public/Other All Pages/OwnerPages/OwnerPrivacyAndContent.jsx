@@ -1,140 +1,88 @@
-import Button from "../../Component/Button";
-import Input from "../../Component/Input";
+import SearchBar from "./Parts/SearchBar";
 
+const Uploads = [
+ {
+    id: 1,
+    type: "Royalty-Free",
+    song: "Demo Music",
+    complaint:"Aug 12 2024, 4:00 PM",
+    pincode:"Demo name",
+    timeofframe: "Aug 12 2024, 4:00 PM",
+  },
+  {
+    id: 2,
+    type: "Royalty-Free",
+    song: "Demo Music",
+    complaint:"Aug 12 2024, 4:00 PM",
+    pincode:"Demo name",
+    timeofframe: "Aug 12 2024, 4:00 PM",
+  },
+ {
+    id: 3,
+    type: "Royalty-Free",
+    song: "Demo Music",
+    complaint:"Aug 12 2024, 4:00 PM",
+    pincode:"Demo name",
+    timeofframe: "Aug 12 2024, 4:00 PM",
+  },
+];
 export default function OwnerPrivacyAndContent() {
   return (
-    <div className="space-y-8">
-      {/* Privacy Settings */}
-      <div className="bg-white rounded-xl shadow p-6 md:p-8">
-        <h2 className="text-2xl font-semibold mb-6">Privacy Settings</h2>
-
-        <div className="space-y-6">
-          {/* Profile Visibility */}
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-            <div>
-              <h3 className="font-medium text-lg">Profile Visibility</h3>
-              <p className="text-sm text-gray-500">
-                Make your profile visible to other users
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="w-5 h-5 cursor-pointer"
-            />
-          </div>
-
-          {/* Show Earnings */}
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-            <div>
-              <h3 className="font-medium text-lg">Show Earnings</h3>
-              <p className="text-sm text-gray-500">
-                Display your total earnings publicly
-              </p>
-            </div>
-            <input type="checkbox" className="w-5 h-5 cursor-pointer" />
-          </div>
-
-          {/* Show Upload Count */}
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-            <div>
-              <h3 className="font-medium text-lg">Show Upload Count</h3>
-              <p className="text-sm text-gray-500">
-                Display your upload count publicly
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="w-5 h-5 cursor-pointer"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Content Policies */}
-      <div className="bg-white rounded-xl shadow p-6 md:p-8">
-        <h2 className="text-2xl font-semibold mb-6">Content Policies</h2>
-
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content Guidelines
-            </label>
-            <textarea
-              defaultValue="I agree that all content I upload is original and does not infringe on any copyrights or intellectual property rights."
-              rows="4"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Terms & Conditions
-            </label>
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <input
-                type="checkbox"
-                defaultChecked
-                className="w-5 h-5 mt-1 cursor-pointer"
-              />
-              <p className="text-sm text-gray-600">
-                I agree to the Terms & Conditions and understand that any
-                violation may result in account suspension.
-              </p>
+    <div className="p-8 bg-gray-50 min-h-screen font-sans">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-800">Statement</h1>
+            <div className="relative w-1/3">
+              <SearchBar placeholder="Search" />
             </div>
           </div>
+    
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-separate border-spacing-y-3">
+              <thead className="bg-gray-100">
+                <tr className="text-gray-400">
+                  <th className="px-4 py-4 mb-5 font-semibold text-center">Type</th>
+                  <th className="px-4 py-4 mb-5 font-semibold text-center">Song name</th>
+                  <th className="px-4 py-4 mb-5 font-semibold text-center">
+                    Complaint filed on
+                  </th>
+                  <th className="px-4 py-4 mb-5 font-semibold text-center">
+                    Pincode
+                  </th>
+                  <th className="px-4 py-4 mb-5 font-semibold max-w-[150px] break-all  text-center">
+                    Time frame of copyright violation
+                  </th>
+                </tr>
+              </thead>
+    
+              <tbody>
+                {Uploads.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <td className="px-4 first:rounded-l-lg border-y border-l text-center">
+                      {row.type}
+                    </td>
+                    <td className="px-4 py-1 border-y text-center">
+                      {row.song}
+                    </td>
+                    <td className="px-4  border-y text-lg max-w-[220px] break-all 
+                    ">
+                      {row.complaint}
+                    </td>
+    
+                    <td className="px-4 py-1 border-y text-center">
+                      {row.pincode}
+                    </td>
+    
+                    <td className="px-4 py-1 last:rounded-r-lg border-y border-r  text-center">
+                      {row.timeofframe}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-
-      {/* Contact & Support */}
-      <div className="bg-white rounded-xl shadow p-6 md:p-8">
-        <h2 className="text-2xl font-semibold mb-6">Contact Information</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-          <Input
-            label="Email Address"
-            placeholder="Enter email for notifications"
-            type="email"
-          />
-          <Input
-            label="Phone Number"
-            placeholder="Enter phone for support"
-            type="tel"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input
-            label="Support Email"
-            placeholder="Enter support email"
-            type="email"
-          />
-          <Input
-            label="Business Website"
-            placeholder="Enter your website URL"
-            type="url"
-          />
-        </div>
-      </div>
-
-      {/* Save Changes */}
-      <div className="flex gap-4">
-        <Button
-          text="Save Changes"
-          bg="bg-black px-20 py-3"
-          textColor="text-white"
-          textSize="text-lg font-bold"
-          rounded="rounded-lg"
-        />
-        <Button
-          text="Cancel"
-          bg="bg-gray-200 px-20 py-3"
-          textColor="text-black"
-          textSize="text-lg font-bold"
-          rounded="rounded-lg"
-        />
-      </div>
-    </div>
   );
 }
