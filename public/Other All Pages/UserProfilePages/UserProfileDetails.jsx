@@ -1,4 +1,4 @@
-import { useState , useEffect} from "react";
+import { useState } from "react";
 import NavBar from "../../Component/NavBar";
 import SmallNavBar from "../../Component/SmallNavBar";
 import PurchaseList from "./Parts/PurchaseList";
@@ -6,19 +6,15 @@ import Faverouite from "./Parts/Faverouite";
 import UserInfo from "./Parts/UserInfo";
 import { SideMenu } from "../../Component/SideMenu";
 
-
-
 function Purchases() {
-
-  const [CurrentPart, setCurrentPart] = useState(0);
+  const [CurrentPart, setCurrentPart] = useState(() => {
+    try {
+      return Number(localStorage.getItem("CurrentPage")) || 0;
+    } catch {
+      return 0;
+    }
+  });
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
-
- useEffect(() => {
-   const savedPage = Number(localStorage.getItem("CurrentPage")) || 0;
-   setCurrentPart(savedPage);
- }, []);
-
-
 
   let content;
 
@@ -35,7 +31,6 @@ function Purchases() {
     default:
       content = null;
   }
-
 
   return (
     <>
@@ -58,11 +53,11 @@ function Purchases() {
           { label: "Favourites" },
           { label: "User Info" },
         ]}
-        NavbarFirstChild = "py-1"
+        NavbarFirstChild="py-1"
         setCurrentPaert={setCurrentPart}
       />
 
-      <div className="w-[80%] mx-auto">{content}</div>
+      <div className="w-full max-w-5xl mx-auto px-4 md:px-0">{content}</div>
     </>
   );
 }

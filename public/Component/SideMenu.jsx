@@ -7,9 +7,19 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
 
   function CurrentPage(value) {
-    localStorage.setItem("CurrentPage", value); 
+    localStorage.setItem("CurrentPage", value);
   }
 
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
+
+  const profileName = currentUser?.fullName || "Micheal Jordean";
+  const profileRole = currentUser?.Role || "User";
 
   const handleMenuClick = (id) => {
     if (setCurrentPart) {
@@ -34,29 +44,41 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black  justify-end transition-opacity duration-300 z-40 ${
-          isDrawerOpen ? "opacity-50" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 z-40 ${
+          isDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={handleOverlayClick}
       />
 
       {/* Drawer */}
-      <div
-        className={`fixed flex flex-col top-0 right-0 h-full w-[40%] bg-white  shadow-lg transform transition-transform duration-300 z-50
-          ${isDrawerOpen ? "translate-x-0" : "translate-x-full"}
-        `}
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Profile menu"
+        className={`fixed inset-x-0 bottom-0 flex flex-col w-full h-[50vh]
+          md:h-auto
+          md:inset-y-4 md:left-auto md:right-4 md:bottom-auto md:w-[420px] lg:w-[480px]
+          bg-white/95 backdrop-blur-xl shadow-2xl rounded-t-3xl md:rounded-3xl border border-black/10 overflow-hidden
+          transform transition-transform duration-300 z-50 ${
+            isDrawerOpen
+              ? "translate-y-0 md:translate-x-0 md:translate-y-0"
+              : "translate-y-full md:translate-x-full md:translate-y-0"
+          }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4 p-4">
-          <img src={Img} alt="Logo" className="h-15 w-15 rounded-4xl" />
-          <span className="text-xl font-semibold"> Your Profile</span>
+        {/* Header (sm and down) */}
+        <div className="md:hidden relative flex items-center justify-center px-5 py-4 bg-white">
+          <span className="text-base font-semibold text-gray-900">
+            User Profile
+          </span>
           <button
-            className=" p-2 hover:bg-gray-300 hover:text-white rounded-md"
+            type="button"
+            aria-label="Close menu"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl hover:bg-black/5 transition-colors"
             onClick={toggleDrawer}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
+              className="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -70,13 +92,55 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
             </svg>
           </button>
         </div>
-        <div className="p-10 flex flex-col pr-10">
-          <p className="text-2xl font-bold">Hello</p>
-          <p className="text-2xl font-bold">Micheal Jordean</p>
+
+        {/* Header (md+) */}
+        <div className="hidden md:flex items-center justify-between gap-4 px-5 py-4 bg-gradient-to-r from-[#FFD43B] via-[#FFA94D] via-[#FF6B6B] to-[#C2255C] text-white">
+          <div className="flex items-center gap-3 min-w-0">
+            <img
+              src={Img}
+              alt=""
+              className="h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/40 object-cover"
+            />
+            <div className="min-w-0">
+              <p className="font-semibold text-sm md:text-base truncate">
+                {profileName}
+              </p>
+              <p className="text-xs md:text-sm text-white/90 truncate">
+                {profileRole}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="p-2 rounded-xl hover:bg-white/15 transition-colors"
+            onClick={toggleDrawer}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-7 w-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <div className="px-6 pt-5 pb-4">
+          <p className="font-bold text-gray-500">Hello</p>
+          <p className="text-xl md:text-3xl font-bold text-gray-900 mb-4">
+            {profileName}
+          </p>
         </div>
 
         {/* Menu Items */}
-        <div className="overflow-y-auto flex-1 px-2 ">
+        <div className="overflow-y-auto flex-1 px-4 pb-4">
           {[
             {
               id: 0,
@@ -96,7 +160,7 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
           ].map((section) => (
             <div
               key={section.id}
-              className="mb-2 px-10"
+              className="mb-2"
               onClick={() => {
                 CurrentPage(section.id);
               }}
@@ -104,12 +168,14 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
               <Link
                 to={section.path}
                 onClick={() => handleMenuClick(section.id)}
-                className="w-full flex text-xl items-center justify-between p-3 rounded-md hover:bg-gray-200 hover:scale-101 hover:shadow-md shadow-black/30 border-b-black/30 border-b no-underline text-black"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border border-black/5 bg-white hover:bg-black/5 transition-colors no-underline text-black group"
               >
-                <span>{section.title}</span>
+                <span className="text-base md:text-lg font-semibold">
+                  {section.title}
+                </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`h-4 w-4 transition-transform rotate-270`}
+                  className="h-5 w-5 text-gray-400 group-hover:text-gray-900 transition-colors"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -118,7 +184,7 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M19 9l-7 7-7-7"
+                    d="M9 5l7 7-7 7"
                   />
                 </svg>
               </Link>
@@ -126,33 +192,16 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
           ))}
         </div>
 
-        <div className="px-10 mt-6">
-          <button
-            onClick={() => {
-              try {
-                localStorage.setItem("desktopMode", "false");
-              } catch (e) {
-                console.warn("Could not access localStorage:", e);
-              }
-              // close drawer and switch to home/mobile view
-              openProfileMenu(false);
-              window.location.href = "/";
-            }}
-            className="w-full text-left px-4 py-2 rounded-md border mb-4"
-          >
-            Switch to Mobile View
-          </button>
-        </div>
-
-        <div className="absolute bottom-30 right-[30%]">
+        <div className="p-4 border-t border-black/10 bg-white/80">
           <Button
             text="Log Out"
-            bg="bg-white px-30 py-3 mt-10 "
+            bg="w-[80%] py-3 border rounded-full mx-auto"
             textColor="text-black"
-            textSize="text-lg font-bold border-2"
+            textSize="text-base font-semibold"
+            rounded="rounded-2xl"
           />
         </div>
-      </div>
+      </aside>
     </>
   );
 }

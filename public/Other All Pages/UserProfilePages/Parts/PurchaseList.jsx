@@ -23,9 +23,12 @@ export default function PurchaseList() {
       return (
         <Link
           to={`/song/${index}`}
-          className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
+          className="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 transition-colors md:w-auto md:h-auto md:rounded-none md:hover:bg-transparent"
         >
-         loream
+          <span className="md:hidden text-2xl text-gray-700">›</span>
+          <span className="hidden md:inline text-blue-600 hover:text-blue-800 underline cursor-pointer">
+            loream
+          </span>
         </Link>
       );
     }
