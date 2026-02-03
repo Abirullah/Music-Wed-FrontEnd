@@ -9,8 +9,7 @@ export default function Footer() {
       <div
         className="
           w-full
-          flex flex-col md:flex-row
-          justify-between items-center
+          grid grid-cols-2 md:grid-cols-3 items-center
           px-6 sm:px-8 lg:px-[10%]
           pt-8 pb-10
           border-b border-gray-700
@@ -18,7 +17,7 @@ export default function Footer() {
         "
       >
         {/* Brand */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left">
+        <div className="flex flex-col items-start text-left col-start-1 row-start-1">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold">
             ECHOTUNE
           </h1>
@@ -28,7 +27,7 @@ export default function Footer() {
         </div>
 
         {/* Links */}
-        <ul className="flex flex-wrap justify-center gap-6 sm:gap-8 md:gap-12 text-sm sm:text-base">
+        <ul className="flex flex-wrap justify-center gap-6 sm:gap-3 md:gap-8 text-xs sm:text-base col-span-2 row-start-2 md:col-span-1 md:col-start-2 md:row-start-1">
           {["Register", "Request", "Login", "About", "Contact", "Others"].map(
             (link, i) => (
               <li key={i}>
@@ -44,7 +43,7 @@ export default function Footer() {
         </ul>
 
         {/* Social Icons */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 col-start-2 row-start-1 justify-self-end md:col-start-3">
           {[Instagram, x, Email].map((icon, i) => (
             <a
               key={i}
@@ -67,17 +66,18 @@ export default function Footer() {
         "
       >
         {/* Search */}
-        <div className="flex justify-center">
-          <SearchBar
-            classess="w-full sm:w-[70%] md:w-[50%] lg:w-[35%] rounded-full bg-white h-11 sm:h-12 px-4 placeholder-gray-300"
-            placeholder="Check License Number"
-            ButtonInfo="w-10 h-10 sm:w-12 sm:h-11 rounded-full"
-          />
+        <div className="flex justify-center  w-full">
+           <SearchBar
+                        classess="w-full h-15 rounded-full bg-white px-4 max-w-2xl"
+                        placeholder="Search"
+                        ButtonInfo="w-14 h-12"
+          
+                      />
         </div>
 
         {/* Bottom Links + Copyright */}
-        <div className="flex flex-col lg:flex-row justify-between items-center gap-6 text-center lg:text-left">
-          <ul className="flex flex-wrap justify-center gap-6 sm:gap-10 text-xs sm:text-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
+          <ul className="flex flex-wrap justify-center gap-3 sm:gap-7 text-[10px] sm:text-sm">
             {[
               "Purchase Flow",
               "Terms & Condition",

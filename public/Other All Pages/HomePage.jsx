@@ -58,7 +58,7 @@ export default function HomePage() {
             className="
               text-white font-bold text-center
               text-3xl sm:text-3xl md:text-5xl
-              max-w-4xl
+              
             "
           >
             Lorem ipsum dolor sit amet consectetur
@@ -70,7 +70,8 @@ export default function HomePage() {
             className="
               text-white/90 text-center mt-4
               text-md sm:text-base
-              max-w-xl
+              md:text-lg lg:text-xl
+              max-w-5xl
             "
           >
             Integer auctor cum urna malesuada. Venenatis magna sed tempor
@@ -84,11 +85,11 @@ export default function HomePage() {
           </div>
 
           {/* search */}
-          <div className="w-full max-w-md mt-6">
+          <div className="w-full max-w-4xl mt-6 self-center">
             <SearchBar
-              classess="w-full h-15 rounded-full bg-white px-4"
+              classess="w-full h-20 rounded-full bg-white px-4"
               placeholder="Search"
-              ButtonInfo="w-14 h-12"
+              ButtonInfo="w-18 h-16 rounded-full"
 
             />
           </div>
@@ -102,27 +103,39 @@ export default function HomePage() {
         <div className="relative z-10 -mt-16 px-4">
           <div className="grid grid-cols-2  gap-4 max-w-3xl mx-auto">
             {/* Creator */}
-            <div className="bg-white rounded-xl shadow-lg p-5 md:flex gap-4 items-center">
+            <div className="relative bg-white rounded-xl shadow-lg p-5 md:flex gap-4 items-center">
               <img src={creatorIcon} className="w-10" alt="" />
-              <div className="flex-1">
+              <div className="flex-1 pr-10 sm:pr-12 md:pr-14">
                 <h3 className="font-semibold text-md">
                   Music/Content Creator
-                  <span className="ml-3 text-lg">›</span>
                 </h3>
+                <p className=" hidden md:block text-lg text-gray-500 my-2">Sell licenses of your music/content</p>
               </div>
+              <span
+                aria-hidden="true"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+              >
+                ›
+              </span>
               
             </div>
 
             {/* User */}
-            <div className="bg-white rounded-xl shadow-lg p-5 md:flex gap-4 items-center">
+            <div className="relative bg-white rounded-xl shadow-lg p-5 md:flex gap-4 items-center">
               <img src={userIcon} className="w-10" alt="" />
-              <div className="flex-1">
+              <div className="flex-1 pr-10 sm:pr-12 md:pr-14">
                 <h3 className="font-semibold text-md">
                   Music/Content User
-                  <span className="ml-3 text-xl">›</span>
                 </h3>
+                <p className=" hidden md:block text-gray-500 my-2">Buy the music/content of your choice</p>
                 
               </div>
+              <span
+                aria-hidden="true"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+              >
+                ›
+              </span>
               
             </div>
           </div>

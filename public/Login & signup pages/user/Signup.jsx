@@ -11,7 +11,7 @@ export default function UserSignup() {
     email: "",
     password: "",
       confirmPassword: "",
-    Role : "owner"
+    Role : "user"
   });
 
   const [error, setError] = useState("");

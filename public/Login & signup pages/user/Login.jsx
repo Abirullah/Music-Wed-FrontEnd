@@ -37,7 +37,7 @@ export default function UserLogin() {
       }),
     );
 
-    navigate("/owner");
+    navigate("/");
   };
 
 
