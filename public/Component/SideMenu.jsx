@@ -125,6 +125,25 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
             </div>
           ))}
         </div>
+
+        <div className="px-10 mt-6">
+          <button
+            onClick={() => {
+              try {
+                localStorage.setItem("desktopMode", "false");
+              } catch (e) {
+                console.warn("Could not access localStorage:", e);
+              }
+              // close drawer and switch to home/mobile view
+              openProfileMenu(false);
+              window.location.href = "/";
+            }}
+            className="w-full text-left px-4 py-2 rounded-md border mb-4"
+          >
+            Switch to Mobile View
+          </button>
+        </div>
+
         <div className="absolute bottom-30 right-[30%]">
           <Button
             text="Log Out"

@@ -86,13 +86,24 @@ export default function SongForm() {
     localStorage.setItem("uploadCompleted", JSON.stringify(newCompleted));
   };
 
+  const handleFinalSubmit = () => {
+    console.log("FINAL SONG DATA:", formData);
+    // clear saved draft and completed state so the form is ready for a new upload
+    localStorage.removeItem("uploadedSong");
+    localStorage.removeItem("uploadCompleted");
+    setFormData(initialFormState);
+    setCompleted({ 1: false, 2: false, 5: false });
+    setActive(1);
+    alert("Song uploaded successfully ✅");
+  };
+
   const handleSubmitStep = (step) => (e) => {
     e.preventDefault();
     if (!validateStep(step)) return;
     saveAndComplete(step);
     if (step === 1) setActive(2);
     if (step === 2) setActive(5);
-    if (step === 5) alert("Song uploaded and saved locally ✅");
+    if (step === 5) handleFinalSubmit();
   };
 
   return (

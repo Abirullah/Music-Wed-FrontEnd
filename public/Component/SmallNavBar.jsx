@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from "react";
 
 function SmallNavBar({
   tabs = ["Lorem", "Lorem", "Lorem", "Lorem"],
-  classes,
+  classes = "",
   setCurrentPaert,
-  CurrentPart
+  CurrentPart,
 }) {
   const [active, setActive] = useState(0);
   const tabRefs = useRef([]);
@@ -26,14 +26,19 @@ function SmallNavBar({
       const savedPage = Number(localStorage.getItem("CurrentPage")) || 0;
       setActive(savedPage);
     }
-   }, []);
-
- 
+  }, []);
 
   return (
-    <div className={`  ${classes}`}>
-      <div className="mx-auto w-[70%]">
-        <div className="relative flex text-xl justify-around font-bold h-10 border-b border-gray-200">
+    <div className={`w-full ${classes}`}>
+      <div className="mx-auto w-full sm:w-[90%] md:w-[80%] lg:w-[70%]">
+        <div
+          className="
+            relative flex justify-around font-bold
+            h-9 sm:h-10 md:h-12
+            border-b border-gray-200
+            text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl
+          "
+        >
           {tabs.map((tab, index) => (
             <div
               key={index}
@@ -42,22 +47,35 @@ function SmallNavBar({
                 setActive(index);
                 if (setCurrentPaert) setCurrentPaert(index);
               }}
-              className={`cursor-pointer px-2 flex justify-center items-center transition-colors duration-300 gap-2
-              ${
-                active === index
-                  ? "text-black"
-                  : "text-gray-400 hover:text-black"
-              }`}
+              className={`
+                cursor-pointer px-2 sm:px-3 md:px-4
+                flex items-center gap-2
+                transition-colors duration-300
+                ${
+                  active === index
+                    ? "text-black"
+                    : "text-gray-400 hover:text-black"
+                }
+              `}
             >
               {tab.icon && (
-                <img src={tab.icon} alt={tab.label} className="w-5 h-5" />
+                <img
+                  src={tab.icon}
+                  alt={tab.label}
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                />
               )}
               {tab.label}
             </div>
           ))}
 
+          {/* Active underline */}
           <div
-            className="absolute bottom-0 h-[3px] bg-black transition-all duration-300"
+            className="
+              absolute bottom-0
+              h-[2px] sm:h-[3px]
+              bg-black transition-all duration-300
+            "
             style={style}
           />
         </div>
