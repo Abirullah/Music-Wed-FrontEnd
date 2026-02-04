@@ -19,7 +19,6 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
   })();
 
   const profileName = currentUser?.fullName || "Micheal Jordean";
-  const profileRole = currentUser?.Role || "User";
 
   const handleMenuClick = (id) => {
     if (setCurrentPart) {
@@ -44,7 +43,7 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 z-40 ${
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 z-[200] ${
           isDrawerOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={handleOverlayClick}
@@ -56,10 +55,10 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
         aria-modal="true"
         aria-label="Profile menu"
         className={`fixed inset-x-0 bottom-0 flex flex-col w-full h-[50vh]
-          md:h-auto
-          md:inset-y-4 md:left-auto md:right-4 md:bottom-auto md:w-[420px] lg:w-[480px]
-          bg-white/95 backdrop-blur-xl shadow-2xl rounded-t-3xl md:rounded-3xl border border-black/10 overflow-hidden
-          transform transition-transform duration-300 z-50 ${
+          md:inset-y-0 md:left-auto md:right-0 md:w-[30%] md:h-full
+          bg-white/95 backdrop-blur-xl shadow-2xl rounded-t-3xl md:rounded-none border border-black/10 overflow-hidden
+          pb-4 md:pb-6
+          transform transition-transform duration-300 z-[210] ${
             isDrawerOpen
               ? "translate-y-0 md:translate-x-0 md:translate-y-0"
               : "translate-y-full md:translate-x-full md:translate-y-0"
@@ -94,26 +93,14 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
         </div>
 
         {/* Header (md+) */}
-        <div className="hidden md:flex items-center justify-between gap-4 px-5 py-4 bg-gradient-to-r from-[#FFD43B] via-[#FFA94D] via-[#FF6B6B] to-[#C2255C] text-white">
-          <div className="flex items-center gap-3 min-w-0">
-            <img
-              src={Img}
-              alt=""
-              className="h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/40 object-cover"
-            />
-            <div className="min-w-0">
-              <p className="font-semibold text-sm md:text-base truncate">
-                {profileName}
-              </p>
-              <p className="text-xs md:text-sm text-white/90 truncate">
-                {profileRole}
-              </p>
-            </div>
-          </div>
+        <div className="hidden md:flex items-center justify-between gap-4 px-5 py-4 ">
+          
+           <p className="text-lg truncate text-center font-bold self-center mx-auto">User Profile</p>
+          
           <button
             type="button"
             aria-label="Close menu"
-            className="p-2 rounded-xl hover:bg-white/15 transition-colors"
+            className="p-2 rounded-xl cursor-pointer hover:bg-gray-200 transition-colors"
             onClick={toggleDrawer}
           >
             <svg
@@ -133,14 +120,14 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
           </button>
         </div>
         <div className="px-6 pt-5 pb-4">
-          <p className="font-bold text-gray-500">Hello</p>
+          <p className="font-bold text-2xl text-black">Hello</p>
           <p className="text-xl md:text-3xl font-bold text-gray-900 mb-4">
             {profileName}
           </p>
         </div>
 
         {/* Menu Items */}
-        <div className="overflow-y-auto flex-1 px-4 pb-4">
+        <div className="overflow-y-auto flex-1 px-4">
           {[
             {
               id: 0,
@@ -192,10 +179,10 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
           ))}
         </div>
 
-        <div className="p-4 border-t border-black/10 bg-white/80">
+        <div className="p-4  bg-white/80 md:mb-15">
           <Button
             text="Log Out"
-            bg="w-[80%] py-3 border rounded-full mx-auto"
+            bg="w-[80%] max-w-3xl py-3 border rounded-full mx-auto"
             textColor="text-black"
             textSize="text-base font-semibold"
             rounded="rounded-2xl"

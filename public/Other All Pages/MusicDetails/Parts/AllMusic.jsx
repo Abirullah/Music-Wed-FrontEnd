@@ -1,40 +1,160 @@
+import { useState } from "react";
 import FilterMenu from "../../../Component/FilterMenu";
 import MusicCard from "../../../Component/MusicCard";
 import HeroImg from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import SearchBar from "../../../Component/SearchBar";
 
 function AllMusic() {
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
   return (
-    <div className="flex gap-15">
-      <div className="w-[22%]">
+    <>
+      {mobileFiltersOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+          <div className="fixed inset-x-0 bottom-0 z-50 h-[70vh] bg-white rounded-t-3xl shadow-2xl overflow-hidden md:hidden">
+            <div className="relative flex items-center justify-center px-5 py-4 border-b border-black/10">
+              <span className="text-base font-semibold text-gray-900">
+                Filters
+              </span>
+              <button
+                type="button"
+                aria-label="Close filters"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl hover:bg-black/5 transition-colors"
+                onClick={() => setMobileFiltersOpen(false)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <FilterMenu variant="sheet" showTitle={false} />
+          </div>
+        </>
+      )}
+
+      <div className="flex flex-col md:flex-row gap-6 md:gap-10">
+        <div className="hidden md:block md:w-[22%]">
         <FilterMenu />
       </div>
 
-      <div className="w-[78%]">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Explore</h2>
-           <SearchBar
-                            classess={
-                              "w-110 rounded-full border-1 border-gray-500 shadow-sm bg-white/80  h-12"
-                            }
-                            ButtonInfo="w-[12%] h-full"
-                          />
-        </div>
-        <div className="flex flex-col gap-20">
+        <div className="w-full md:w-[78%]">
+          <div className="flex items-center justify-between gap-3 mb-4 md:mb-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-left">
+              Explore
+            </h2>
+
+            <div className="hidden md:block">
+              <SearchBar
+                classess="w-[28rem] lg:w-[32rem] rounded-full border border-gray-300 shadow-sm bg-white/80 h-12"
+                placeholder="Search"
+                ButtonInfo="w-14 h-full"
+              />
+            </div>
+
+            <div className="md:hidden flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="Open filters"
+                onClick={() => setMobileFiltersOpen(true)}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-black/10 bg-white hover:bg-black/5 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-700"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                aria-label={mobileSearchOpen ? "Close search" : "Open search"}
+                onClick={() => setMobileSearchOpen((v) => !v)}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-black/10 bg-white hover:bg-black/5 transition-colors"
+              >
+                {mobileSearchOpen ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-700"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-5 w-5 text-gray-700"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {mobileSearchOpen && (
+            <div className="md:hidden mb-4">
+              <SearchBar
+                classess="w-full rounded-full border border-gray-300 shadow-sm bg-white/80 h-11"
+                placeholder="Search"
+                ButtonInfo="w-12 h-full"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-col gap-12 md:gap-20">
           <div>
             <div className="flex items-center justify-between mb-3 px-8">
               <p className="text-xl font-semibold">Music</p>
               <a href="">View All</a>
             </div>
 
-            <div className="grid grid-cols-3 gap-10 mx-auto w-[90%]">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
               {Array.from({ length: 6 }).map((_, i) => (
                 <MusicCard
                   key={i}
                   image={HeroImg}
                   title="Lorem Ipsum Dolor"
                   subtitle="Top Album"
-                  classes="h-50 w-[90%] rounded-xl"
+                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
                 />
               ))}
             </div>
@@ -46,21 +166,22 @@ function AllMusic() {
               <a href="">View All</a>
             </div>
 
-            <div className="grid grid-cols-3 gap-10 mx-auto w-[90%]">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
               {Array.from({ length: 6 }).map((_, i) => (
                 <MusicCard
                   key={i}
                   image={HeroImg}
                   title="Lorem Ipsum Dolor"
                   subtitle="Top Album"
-                  classes="h-45 w-[90%] rounded-xl"
+                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
                 />
               ))}
             </div>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

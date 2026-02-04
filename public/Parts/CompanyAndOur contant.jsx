@@ -40,7 +40,7 @@ function CompanyAndOurContant() {
     <>
       {/* companies */}
       <div className="w-full min-h-[20vh] top-20 py-20 flex justify-center item-center">
-        <div className="md:w-[80%] w-[90%] max-w-8xl flex flex-col lg:flex-row gap-8">
+        <div className="md:w-[80%] w-[90%]  flex flex-col lg:flex-row gap-8">
           <div className="lg:w-1/2 flex items-center">
             <h2 className="text-2xl text-center text-bold w-full md:text-3xl lg:text-4xl font-extrabold leading-tight">
               Trusted by world best companies and creative professional
@@ -65,7 +65,7 @@ function CompanyAndOurContant() {
       </div>
 
       <div className="w-full mb-15 flex justify-center items-center px-4 sm:px-6">
-  <div className="w-full max-w-7xl bg-black text-white rounded-2xl lg:rounded-3xl px-6 sm:px-8 md:px-12 py-8 md:py-10 flex flex-col gap-10">
+  <div className="w-full max-w-[1500px] bg-black text-white rounded-2xl lg:rounded-3xl px-6 sm:px-8 md:px-12 py-8 md:py-10 flex flex-col gap-10">
 
     {/* TOP SECTION */}
     <div className="flex flex-col items-center text-center gap-4">

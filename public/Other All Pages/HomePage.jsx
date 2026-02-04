@@ -21,8 +21,31 @@ import {
   Artist,
 } from "../../assets/Icons/IconExporter";
 
+const HERO_SLIDES = [
+  {
+    title: "Lorem ipsum dolor sit amet consectetur",
+    description:
+      "Integer auctor cum urna malesuada. Venenatis magna sed tempor feugiat varius. Et tempus posuere consequat nulla convallis",
+  },
+  {
+    title: "Venenatis magna sed tempor feugiat",
+    description:
+      "Feugiat varius. Et tempus posuere consequat nulla convallis. Integer auctor cum urna malesuada",
+  },
+  {
+    title: "Et tempus posuere consequat nulla",
+    description:
+      "Convallis integer auctor cum urna malesuada. Venenatis magna sed tempor feugiat varius",
+  },
+];
+
 export default function HomePage() {
   const [heroScrolled, setHeroScrolled] = useState(false);
+  const [heroSlide, setHeroSlide] = useState(0);
+  const [isMdUp, setIsMdUp] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(min-width: 768px)").matches;
+  });
 
   useEffect(() => {
     const onScroll = () => setHeroScrolled(window.scrollY > 700);
@@ -30,9 +53,28 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = (e) => setIsMdUp(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (isMdUp) return;
+
+    const intervalId = window.setInterval(() => {
+      setHeroSlide((i) => (i + 1) % HERO_SLIDES.length);
+    }, 4000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isMdUp]);
+
   const changeStatus = () => {
     localStorage.setItem("CurrentPage", 0);
   };
+
+  const activeHero = isMdUp ? HERO_SLIDES[0] : HERO_SLIDES[heroSlide];
 
   return (
     <>
@@ -60,9 +102,9 @@ export default function HomePage() {
               text-3xl sm:text-3xl md:text-5xl
               
             "
-          >
-            Lorem ipsum dolor sit amet consectetur
-          </h1>
+	          >
+	            {activeHero.title}
+	          </h1>
 
 
 
@@ -73,23 +115,32 @@ export default function HomePage() {
               md:text-lg lg:text-xl
               max-w-5xl
             "
-          >
-            Integer auctor cum urna malesuada. Venenatis magna sed tempor
-            feugiat varius. Et tempus posuere consequat nulla convallis
-          </p>
+	          >
+	            {activeHero.description}
+	          </p>
 
-          <div className="flex gap-2 mt-4 justify-center items-center">
-            <span className="w-2 h-2 bg-yellow-400 rounded-full" />
-            <span className="w-2 h-2 bg-white/40 rounded-full" />
-            <span className="w-2 h-2 bg-white/40 rounded-full" />
-          </div>
+	          <div className="flex gap-2 mt-4 justify-center items-center md:hidden">
+	            {HERO_SLIDES.map((_, i) => (
+	              <button
+	                key={i}
+	                type="button"
+	                aria-label={`Hero slide ${i + 1}`}
+	                onClick={() => setHeroSlide(i)}
+	                className={`h-2 rounded-full transition-all duration-300 ${
+	                  i === heroSlide
+	                    ? "bg-yellow-400 w-4 sm:w-5"
+	                    : "bg-white/40 w-2"
+	                }`}
+	              />
+	            ))}
+	          </div>
 
           {/* search */}
-          <div className="w-full max-w-4xl mt-6 self-center">
+          <div className="w-full max-w-3xl mt-6 self-center">
             <SearchBar
-              classess="w-full h-20 rounded-full bg-white px-4"
+              classess="w-full h-19 rounded-full bg-white px-4"
               placeholder="Search"
-              ButtonInfo="w-18 h-16 rounded-full"
+              ButtonInfo="w-17 h-15 rounded-full"
 
             />
           </div>

@@ -19,7 +19,7 @@ const filters = [
   },
 ];
 
-export default function FilterMenu() {
+export default function FilterMenu({ variant = "sidebar", showTitle = true }) {
   const [openSections, setOpenSections] = useState({});
 
   const toggleSection = (name) => {
@@ -30,8 +30,14 @@ export default function FilterMenu() {
   };
 
   return (
-    <aside className="sticky top-24 h-[calc(100vh-6rem)] w-full shadow-lg mt-3 rounded-lg bg-white p-4 overflow-y-auto">
-      <h2 className="text-xl font-semibold mb-4">Filter</h2>
+    <aside
+      className={
+        variant === "sheet"
+          ? "w-full h-full bg-white p-4 overflow-y-auto"
+          : "sticky top-24 h-[calc(100vh-6rem)] w-full shadow-lg mt-3 rounded-lg bg-white p-4 overflow-y-auto"
+      }
+    >
+      {showTitle && <h2 className="text-xl font-semibold mb-4">Filter</h2>}
 
       {filters.map((section) => (
         <div key={section.name} className="border-b border-gray-400 py-3">
