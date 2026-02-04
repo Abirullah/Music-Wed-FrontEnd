@@ -39,7 +39,7 @@ export default function UserNewPassword() {
     <div className="min-h-screen flex font-sans">
       {/* LEFT IMAGE */}
       <div
-        className="hidden lg:block w-1/3 bg-cover bg-center relative"
+        className="hidden md:block md:w-1/2 lg:w-1/3 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${bgImg})` }}
       >
         <div className="absolute inset-0 bg-black/20"></div>
@@ -61,73 +61,91 @@ export default function UserNewPassword() {
         </div>
       </div>
 
+   
       {/* RIGHT FORM */}
-      <div className="w-full lg:w-2/3 flex p-4 flex-col justify-between">
-        <div className="w-[60%] h-[60%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-8 flex flex-col justify-around">
-          <h2 className="text-3xl font-bold mb-4">Reset Password</h2>
+<div className="w-full md:w-1/2 lg:w-2/3 flex items-center p-4">
+ <div className="md:hidden fixed top-4 left-3 z-50 mb-7">
+  <button
+    onClick={() => navigate(-1)}
+    className="flex items-center gap-1 text-gray-800 hover:text-black 
+               font-medium text-sm transition-colors"
+  >
+    <span className="text-xl font-bold">‹</span> 
+    <span>Back</span>
+  </button>
+</div>
+  <div className="w-full lg:w-[70%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mx-auto flex flex-col space-y-10 sm:space-y-0 mt-16 sm:mt-20">
 
-          <p className="text-gray-500 mb-8 leading-relaxed text-sm">
-            Please type something you will remember
-          </p>
+    {/* Heading + Description */}
+    <div className="space-y-3 sm:space-y-4">
+      <h2 className="text-3xl font-bold">Reset Password</h2>
+      <p className="text-gray-500 leading-relaxed text-sm">
+        Please type something you will remember
+      </p>
+    </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* New Password */}
-            <div>
-              <label className="block font-semibold mb-2 text-gray-700">
-                New Password
-              </label>
-              <Input
-                type="password"
-                placeholder="Must be 8 characters"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setError("");
-                }}
-                className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="block font-semibold mb-2 text-gray-700">
-                Confirm Password
-              </label>
-              <Input
-                type="password"
-                placeholder="Confirm  password"
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  setError("");
-                }}
-                className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
-              />
-            </div>
-
-            {/* Error */}
-            {error && (
-              <p className="text-sm text-red-500 font-medium">{error}</p>
-            )}
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-              text="Set Password"
-            />
-          </form>
-        </div>
-        <p className="pb-12 text-center w-[60%]">
-          Remember Password?
-          <span
-            className="font-bold cursor-pointer"
-            onClick={() => navigate("/user/login")}
-          >
-            Login
-          </span>
-        </p>
+    {/* Form */}
+    <form onSubmit={handleSubmit} className="mt-10 sm:mt-8 space-y-6">
+      {/* New Password */}
+      <div>
+        <label className="block font-semibold mb-2 text-gray-700">
+          New Password
+        </label>
+        <Input
+          type="password"
+          placeholder="Must be 8 characters"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError("");
+          }}
+          className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
+        />
       </div>
+
+      {/* Confirm Password */}
+      <div>
+        <label className="block font-semibold mb-2 text-gray-700">
+          Confirm Password
+        </label>
+        <Input
+          type="password"
+          placeholder="Confirm password"
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            setError("");
+          }}
+          className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
+        />
+      </div>
+
+      {/* Error */}
+      {error && (
+        <p className="text-sm text-red-500 font-medium">{error}</p>
+      )}
+
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        className="w-full h-12 mt-6 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
+        text="Set Password"
+      />
+    </form>
+
+    {/* Bottom Text */}
+    <p className="mt-12 sm:mt-8 text-center text-gray-500">
+      Remember Password?{" "}
+      <span
+        className="font-bold cursor-pointer text-gray-700 hover:text-black"
+        onClick={() => navigate("/user/login")}
+      >
+        Login
+      </span>
+    </p>
+  </div>
+</div>
+
     </div>
   );
 }

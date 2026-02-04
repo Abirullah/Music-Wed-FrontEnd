@@ -10,7 +10,7 @@ export default function UserSuccess() {
     <div className="min-h-screen flex font-sans">
       {/* Left Image Panel */}
       <div
-        className="hidden lg:block w-1/3 bg-cover bg-center relative"
+        className="hidden md:block md:w-1/2 lg:w-1/3 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${bgImg})` }}
       >
         <div className="absolute inset-0 bg-black/20"></div>
@@ -33,8 +33,8 @@ export default function UserSuccess() {
       </div>
 
       {/* Right Card Panel */}
-      <div className="w-full lg:w-2/3 flex p-4 flex-col justify-between items-center self-center">
-        <div className="w-[60%] bg-white/90 backdrop-blur-sm rounded-2xl p-8 flex flex-col items-center justify-center ">
+      <div className="w-full md:w-1/2 lg:w-2/3 flex items-center p-4">
+        <div className="w-full lg:w-[70%] bg-white/90 backdrop-blur-sm rounded-2xl p-8 flex flex-col items-center justify-center ">
           {/* Success Icon */}
           <div className=" flex justify-center">
             <img src={SuccessIcon} alt="" />

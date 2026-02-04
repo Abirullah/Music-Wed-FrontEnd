@@ -46,7 +46,7 @@ export default function UserVerify() {
     <div className="min-h-screen flex font-sans">
       {/* LEFT IMAGE SECTION */}
       <div
-        className="hidden lg:block w-1/3 bg-cover bg-center relative"
+        className="hidden md:block md:w-1/2 lg:w-1/3 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${bgImg})` }}
       >
         <div className="absolute inset-0 bg-black/10"></div>
@@ -68,52 +68,81 @@ export default function UserVerify() {
         </div>
       </div>
 
+
       {/* RIGHT FORM SECTION */}
-      <div className="w-full lg:w-2/3 flex p-4 flex-col justify-between">
-        <div className="w-[60%] h-[60%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-8 flex flex-col justify-around">
-          <h2 className="text-3xl font-bold mb-4">Verify</h2>
-          <p className=" text-xl mb-8">Please Check Your Email</p>
-          <p className=" mb-8 text-gray-700">
-            We have send a code to{" "}
-            <span className="font-semibold text-black ">hell0@gmail.com</span>
-          </p>
-          <div className="flex gap-4 justify-start">
-            {code.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => (inputsRef.current[index] = el)}
-                type="text"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(e.target.value, index)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-gray-600 focus:outline-none"
-              />
-            ))}
-          </div>
+<div className="w-full md:w-1/2 lg:w-2/3 flex items-center p-4">
+ <div className="md:hidden fixed top-4 left-3 z-50 mb-7">
+  <button
+    onClick={() => navigate(-1)}
+    className="flex items-center gap-1 text-gray-800 hover:text-black 
+               font-medium text-sm transition-colors"
+  >
+    <span className="text-xl font-bold">‹</span> 
+    <span>Back</span>
+  </button>
+</div>
 
-          <p className=" mb-8 text-gray-700 mt-3">
-            Send code again{" "}
-            <span className="font-semibold text-gray-800 ">00:20</span>
-          </p>
+  <div className="w-full lg:w-[70%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mx-auto flex flex-col space-y-10 sm:space-y-0 mt-16 sm:mt-20">
 
-          <Button
-            type="submit"
-            className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-            text="Submit"
-            onClick={() => navigate("/user/new-password")}
+    {/* Heading + Info */}
+    <div className="space-y-3 sm:space-y-4">
+      <h2 className="text-3xl font-bold hidden md:block">Verify</h2>
+      <p className="text-xl font-bold mb-10 md:mb-1">Please Check Your Email</p>
+      <p className="text-gray-700">
+        We have sent a code to{" "}
+        <span className="font-semibold text-black">hell0@gmail.com</span>
+      </p>
+    </div>
+
+    {/* OTP Inputs */}
+    <div className="mt-10 sm:mt-8 space-y-4">
+      <div className="flex gap-4 justify-center md:justify-start">
+        {code.map((digit, index) => (
+          <input
+            key={index}
+            ref={(el) => (inputsRef.current[index] = el)}
+            type="text"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => handleChange(e.target.value, index)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-gray-600 focus:outline-none"
           />
-        </div>
-        <p className="pb-12 text-center w-[60%]">
-          Remember Password?
-          <span
-            className="font-bold cursor-pointer"
-            onClick={() => navigate("/user/login")}
-          >
-            Login
-          </span>
-        </p>
+        ))}
       </div>
+
+      <p className="text-gray-700 hidden md:block">
+        Send code again{" "}
+        <span className="font-semibold text-gray-800">00:20</span>
+      </p>
+    </div>
+
+    {/* Button */}
+    <Button
+      type="submit"
+      className="w-full h-12 mt-5 sm:mt-4 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
+      text="Submit"
+      onClick={handleVerify}
+    />
+6 
+     <p className="text-gray-700 block md:hidden mx-auto">
+        Send code again{" "}
+        <span className="font-semibold text-gray-800">00:20</span>
+      </p>
+
+    {/* Bottom Text */}
+    <p className="mt-12 sm:mt-8 text-center text-gray-500">
+      Remember Password?{" "}
+      <span
+        className="font-bold cursor-pointer text-gray-700 hover:text-black"
+        onClick={() => navigate("/user/login")}
+      >
+        Login
+      </span>
+    </p>
+  </div>
+</div>
+
     </div>
   );
 }

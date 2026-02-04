@@ -24,19 +24,20 @@ export default function UserForgotPassword() {
 
   return (
     <div className="min-h-screen flex font-sans">
+      {/* LEFT IMAGE SECTION */}
       <div
-        className="hidden lg:block w-1/3 bg-cover bg-center relative"
+        className="hidden md:block md:w-1/2 lg:w-1/3 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${bgImg})` }}
       >
-        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-black/10"></div>
 
-        <div className="relative z-10 text-white px-16 py-14 h-full flex flex-col">
+        <div className="relative z-10 text-white px-8 md:px-10 lg:px-16 py-10 md:py-12 lg:py-14 h-full flex flex-col">
           <div>
             <h1 className="text-3xl font-bold tracking-wide">ECHOTUNE</h1>
             <p className="text-sm mt-1 pl-2">Your Sound Your World</p>
           </div>
 
-          <div className="flex-1 flex flex-col pt-16">
+          <div className="flex-1 flex flex-col pt-15">
             <h2 className="text-2xl md:text-3xl font-bold mb-6 leading-tight">
               Welcome to EchoTune
             </h2>
@@ -47,28 +48,42 @@ export default function UserForgotPassword() {
         </div>
       </div>
 
-      <div className="w-full lg:w-2/3 flex p-4 flex-col justify-between">
-        <div className="w-[60%] h-[60%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-8 flex flex-col justify-around">
-          <h2 className="text-3xl font-bold mb-4">Forget Password</h2>
+      {/* RIGHT FORM SECTION */}
+      <div className="w-full md:w-1/2 lg:w-2/3 flex items-center p-4 justify-between gap-10 md:gap-2">
+       <div className="md:hidden fixed top-4 left-3 z-50 mb-7">
+  <button
+    onClick={() => navigate(-1)}
+    className="flex items-center gap-1 text-gray-800 hover:text-black 
+               font-medium text-sm transition-colors"
+  >
+    <span className="text-xl font-bold">‹</span> 
+    <span>Back</span>
+  </button>
+</div>
+<div className="w-full lg:w-[70%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mx-auto flex flex-col space-y-10 sm:space-y-0 mt-16 sm:mt-20">
+          <div className="space-y-4 sm:space-y-6">
+  <h2 className="text-3xl font-bold">Forgot Password</h2>
 
-          <p className="text-gray-500 mb-8">
-            Don’t worry! It happens. Please enter the email associated with your
-            account.
-          </p>
+  <p className="text-gray-500">
+    Don’t worry! It happens. Please enter the email associated with your
+    account.
+  </p>
+</div>
 
-          <p className="font-bold  mb-8">Email Address</p>
-
-          <form onSubmit={handleSubmit} className="space-y-15">
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setError("");
-              }}
-              className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
-            />
+<form onSubmit={handleSubmit} className="space-y-6 mt-10 sm:mt-8">
+            <div>
+              <label className="block font-bold mb-2">Email Address</label>
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
+                className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
+              />
+            </div>
 
             {error && (
               <p className="text-sm text-red-500 font-medium">{error}</p>
@@ -78,16 +93,20 @@ export default function UserForgotPassword() {
               type="submit"
               className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
               text="Submit"
-              onClick={() => (!error ? navigate("/user/verify") : "")}
             />
           </form>
+
+          <p className="mt-10 sm:mt-8 text-center text-gray-500">
+  Remember Password?{" "}
+  <span
+    className="font-bold text-gray-700 hover:text-black cursor-pointer"
+    onClick={() => navigate("/user/login")}
+  >
+    Login
+  </span>
+</p>
+
         </div>
-        <p className="pb-12 text-center w-[60%]">
-          Remember Password?
-          <span className="font-bold cursor-pointer" onClick={() => navigate("/user/login")}>
-            Login
-          </span>
-        </p>
       </div>
     </div>
   );

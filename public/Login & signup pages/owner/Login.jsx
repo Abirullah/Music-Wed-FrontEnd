@@ -44,7 +44,7 @@ export default function UserLogin() {
   return (
     <div className="min-h-screen  flex font-sans">
       <div
-        className="hidden lg:block w-1/3 bg-cover bg-center relative"
+        className="hidden md:block md:w-1/2 lg:w-1/3 bg-cover bg-center relative"
         style={{ backgroundImage: `url(${bgImg})` }}
       >
         <div className="absolute inset-0 bg-black/10 "></div>
@@ -66,11 +66,21 @@ export default function UserLogin() {
         </div>
       </div>
 
-      <div className="w-full lg:w-2/3 flex items-center p-4">
-        <div className="w-[70%]  bg-opacity-90 backdrop-blur-sm rounded-2xl p-8 ">
+      <div className="w-full md:w-1/2 lg:w-2/3 flex items-center p-4">
+       <div className="md:hidden fixed top-4 left-3 z-50 mb-7">
+  <button
+    onClick={() => navigate("/")}
+    className="flex items-center gap-1 text-gray-800 hover:text-black 
+               font-medium text-sm transition-colors"
+  >
+    <span className="text-xl font-bold">‹</span> 
+    <span>Back</span>
+  </button>
+</div>
+        <div className="w-full lg:w-[70%]  bg-opacity-90 backdrop-blur-sm rounded-2xl p-8 mt-12 md:p-12 mx-auto">
           <h2 className="text-3xl font-bold  mb-8 ">Login</h2>
 
-          <div className="flex w-[70%]  rounded-lg p-1 mb-12 border-2 border-gray-500">
+          <div className="flex w-full lg:w-[70%]  rounded-lg p-1 mb-12 border-2 border-gray-500">
             <button
               type="button"
               onClick={() => navigate("/user/login")}
