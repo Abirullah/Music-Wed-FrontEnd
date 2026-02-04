@@ -10,6 +10,11 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
     localStorage.setItem("CurrentPage", value);
   }
 
+  function Logout() {
+    localStorage.removeItem("currentUser");
+    window.location.href = "/";
+  }
+
   const currentUser = (() => {
     try {
       return JSON.parse(localStorage.getItem("currentUser"));
@@ -179,7 +184,10 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
           ))}
         </div>
 
-        <div className="p-4  bg-white/80 md:mb-15">
+        <div className="p-4  bg-white/80 md:mb-15 cursor-pointer"
+        onClick={()=> Logout()}
+        >
+
           <Button
             text="Log Out"
             bg="w-[80%] max-w-3xl py-3 border rounded-full mx-auto"
