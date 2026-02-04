@@ -1,14 +1,22 @@
-import { useState} from "react";
-import { LightBulbIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
+import StepperPills from "../Parts/StepperPills";
+import MobileBottomSheet from "../Parts/MobileBottomSheet";
 
 const initialFormState = {
-    uploadPermission: "",
-uploadPlatform: "",
-subscriberRange: "",
-expiryType: "",
+  uploadPermission: "",
+  uploadPlatform: "",
+  subscriberRange: "",
+  expiryType: "",
+
+  uploadHeading: "",
+  uploadExpiryValue: "",
+  uploadNonExpiryValue: "",
 
   copyright: "",
+  coverTemplate: "",
   contentName: "",
   artistName: "",
   releaseDate: "",
@@ -33,7 +41,9 @@ expiryType: "",
 };
 
 export default function UploadAContent() {
+  const navigate = useNavigate();
   const [active, setActive] = useState(1);
+  const [noteOpen, setNoteOpen] = useState(false);
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("uploadContent");
     return saved ? { ...initialFormState, ...JSON.parse(saved) } : initialFormState;
@@ -46,10 +56,10 @@ export default function UploadAContent() {
   });
 
   const steps = [
-    { id: 1, label: "Song Information" },
-    { id: 2, label: "Song Link" },
-    { id: 3, label: "Upload Permission" },
-    { id: 4, label: "Repost Permission" },
+    { id: 1, label: "Content information" },
+    { id: 2, label: "Content link" },
+    { id: 3, label: "Permission to upload" },
+    { id: 4, label: "Permission to repost" },
     { id: 5, label: "Agreement" },
   ];
 
@@ -79,6 +89,7 @@ export default function UploadAContent() {
     
     if (step === 1) {
       if (!formData.copyright.trim()) newErrors.copyright = "Required";
+      if (!formData.coverTemplate.trim()) newErrors.coverTemplate = "Required";
       if (!formData.contentName.trim()) newErrors.contentName = "Required";
       if (!formData.artistName.trim()) newErrors.artistName = "Required";
       if (!formData.releaseDate.trim()) newErrors.releaseDate = "Required";
@@ -161,126 +172,162 @@ export default function UploadAContent() {
   };
 
   return (
-    <div className="flex w-fix gap-10">
-      {/* Steps Navigation */}
-      <div className="w-[20%] px-6 rounded-lg h-auto shadow-md flex flex-col gap-8">
-        {steps.map((step) => (
-          <div
-            key={step.id}
-            className={`relative flex items-center ${
-              isAllowed(step.id) ? "cursor-pointer" : "cursor-not-allowed opacity-60"
-            } border-2 z-10 ${
-              completed[step.id]
-                ? "text-green-500 bg-green-200 border-none py-2"
-                : active === step.id
-                ? "bg-gray-700 text-white"
-                : "group hover:bg-gray-700 hover:text-white"
-            } p-2 rounded-lg`}
-            onClick={() => handleClick(step.id)}
-          >
-            {/* Left Circle */}
-            <div
-              className={`w-13 h-13 left-[-15px] absolute flex justify-center items-center rounded-full font-bold mr-3 ${
+    <div className="mx-auto w-full max-w-md lg:max-w-none">
+      {/* Mobile header */}
+      <div className="lg:hidden flex items-center justify-between mb-3">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-white"
+          aria-label="Back"
+        >
+          <ChevronLeftIcon className="h-6 w-6 text-gray-900" />
+        </button>
+
+        <h1 className="text-base font-semibold text-gray-900">Upload Content</h1>
+
+        <button
+          type="button"
+          onClick={() => setNoteOpen(true)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-white"
+          aria-label="Note"
+        >
+          <LightBulbIcon className="h-6 w-6 text-gray-900" />
+        </button>
+      </div>
+
+      <StepperPills
+        steps={steps}
+        active={active}
+        completed={completed}
+        isAllowed={isAllowed}
+        onStepClick={handleClick}
+      />
+
+      <div className="flex flex-col lg:flex-row w-full gap-6 lg:gap-10">
+        {/* Desktop steps */}
+        <div className="hidden lg:flex lg:w-[20%] px-6 rounded-lg h-fit bg-white shadow-md flex-col gap-6 py-6">
+          {steps.map((step) => (
+            <button
+              key={step.id}
+              type="button"
+              onClick={() => handleClick(step.id)}
+              disabled={!isAllowed(step.id)}
+              className={`relative flex items-center border z-10 p-3 rounded-lg text-left transition ${
+                isAllowed(step.id) ? "cursor-pointer" : "cursor-not-allowed opacity-60"
+              } ${
                 completed[step.id]
-                  ? "bg-green-200 text-green-600 border-2 border-green-500"
-                  : "bg-yellow-400 text-white"
+                  ? "text-green-700 bg-green-50 border-green-200"
+                  : active === step.id
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "bg-white border-gray-200 hover:bg-gray-50"
               }`}
             >
-              {completed[step.id] ? "✓" : step.id}
+              <div
+                className={`absolute -left-4 flex h-10 w-10 items-center justify-center rounded-full font-bold ${
+                  completed[step.id]
+                    ? "bg-green-600 text-white"
+                    : "bg-yellow-400 text-white"
+                }`}
+              >
+                {completed[step.id] ? "✓" : step.id}
+              </div>
+
+              <div className="ml-8 text-base font-medium">{step.label}</div>
+
+              <div
+                className={`absolute -right-3 h-6 w-6 rotate-45 border-t border-r border-black ${
+                  completed[step.id]
+                    ? "bg-green-50 border-transparent"
+                    : active === step.id
+                    ? "bg-gray-900 border-transparent"
+                    : "bg-white"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+
+        {/* Step Content */}
+        <div className="w-full lg:w-[50%]">
+          {active === 1 && (
+            <StepOne
+              data={formData}
+              onChange={handleChange}
+              onRadioChange={handleRadio}
+              onSubmit={handleSubmitStep(1)}
+              errors={errors}
+            />
+          )}
+
+          {active === 2 && (
+            <StepTwo
+              data={formData}
+              onChange={handleChange}
+              onSubmit={handleSubmitStep(2)}
+              errors={errors}
+              goBack={goBack}
+            />
+          )}
+
+          {active === 3 && (
+            <StepThree
+              data={formData}
+              onRadioChange={handleRadio}
+              onChange={handleChange}
+              onSubmit={handleSubmitStep(3)}
+              errors={errors}
+              goBack={goBack}
+            />
+          )}
+
+          {active === 4 && (
+            <StepFour
+              data={formData}
+              onRadioChange={handleRadio}
+              onSubmit={handleSubmitStep(4)}
+              errors={errors}
+              goBack={goBack}
+            />
+          )}
+
+          {active === 5 && (
+            <StepFive
+              data={formData}
+              onChange={handleChange}
+              onSubmit={handleSubmitStep(5)}
+              errors={errors}
+              goBack={goBack}
+            />
+          )}
+        </div>
+
+        {/* Desktop note */}
+        <div className="hidden lg:block lg:w-[25%] rounded-xl border border-gray-200 bg-gradient-to-r from-[#b7c3ee] to-[#f0d9da] p-4 shadow-sm h-fit">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-white shadow">
+              <LightBulbIcon className="h-5 w-5 text-gray-700" />
             </div>
-
-            {/* Text */}
-            <div className="text-lg ml-18">{step.label}</div>
-
-            {/* Arrow */}
-            <div
-              className={`w-8 h-8 border-t-2 border-r-2 border-black right-[-25px] absolute flex justify-center items-center rotate-45 mr-3 ${
-                completed[step.id]
-                  ? "bg-green-200 border-none py-2"
-                  : active === step.id
-                  ? "bg-gray-700"
-                  : "group-hover:bg-gray-700 bg-white"
-              }`}
-            ></div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              <span className="font-semibold">Note</span>
+              <br />
+              Any headings without prices will not be displayed to your customers.
+            </p>
           </div>
-        ))}
-      </div>
-
-      {/* Step Content */}
-      <div className="w-[50%]">
-        {active === 1 && (
-          <StepOne
-            data={formData}
-            onChange={handleChange}
-            onRadioChange={handleRadio}
-            onSubmit={handleSubmitStep(1)}
-            errors={errors}
-          />
-        )}
-
-        {active === 2 && (
-          <StepTwo
-            data={formData}
-            onChange={handleChange}
-            onSubmit={handleSubmitStep(2)}
-            errors={errors}
-            goBack={goBack}
-          />
-        )}
-
-        {active === 3 && (
-          <StepThree
-            data={formData}
-            onRadioChange={handleRadio}
-            onSubmit={handleSubmitStep(3)}
-            errors={errors}
-            goBack={goBack}
-          />
-        )}
-
-        {active === 4 && (
-          <StepFour
-            data={formData}
-            onRadioChange={handleRadio}
-            onSubmit={handleSubmitStep(4)}
-            errors={errors}
-            goBack={goBack}
-          />
-        )}
-
-        {active === 5 && (
-          <StepFive
-            data={formData}
-            onChange={handleChange}
-            onSubmit={handleSubmitStep(5)}
-            errors={errors}
-            goBack={goBack}
-          />
-        )}
-      </div>
-
-      {/* Note Card */}
-      <div className="w-[25%] rounded-xl border h-30 border-gray-200 bg-gradient-to-r from-[#b7c3ee] to-[#f0d9da] p-4 shadow-sm">
-        <div className="flex items-start gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white shadow">
-            <LightBulbIcon className="h-5 w-5 text-gray-700" />
-          </div>
-          <p className="text-sm text-gray-700 leading-relaxed">
-            <span className="font-semibold">Note</span>
-            <br />
-            Since our customers buy licence for each song, we suggest you to set an
-            affordable price
-          </p>
         </div>
       </div>
+
+      <MobileBottomSheet open={noteOpen} title="Note" onClose={() => setNoteOpen(false)}>
+        Any headings without prices will not be displayed to your customers.
+      </MobileBottomSheet>
     </div>
   );
 }
 
 function StepOne({ data, onChange, onSubmit, errors }) {
   return (
-    <form onSubmit={onSubmit} className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full bg-white border border-gray-200 rounded-lg p-6 space-y-5">
+    <form onSubmit={onSubmit} className="w-full">
+      <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-5 shadow-sm">
         <h2 className="text-lg font-semibold">Content Information</h2>
 
         <Input
@@ -290,6 +337,15 @@ function StepOne({ data, onChange, onSubmit, errors }) {
           value={data.copyright}
           onChange={onChange}
           error={errors.copyright}
+        />
+
+        <Input
+          id="coverTemplate"
+          label="Upload cover template *"
+          placeholder="Enter link from a platform (Ex: Spotify, Youtube, iMusic etc)"
+          value={data.coverTemplate}
+          onChange={onChange}
+          error={errors.coverTemplate}
         />
 
         <Input
@@ -346,10 +402,7 @@ function StepOne({ data, onChange, onSubmit, errors }) {
           error={errors.mood}
         />
 
-        <button
-          className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-900 transition"
-          type="submit"
-        >
+        <button className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-900 transition" type="submit">
           Submit
         </button>
       </div>
@@ -359,15 +412,15 @@ function StepOne({ data, onChange, onSubmit, errors }) {
 
 function StepTwo({ data, onChange, onSubmit, errors, goBack }) {
   return (
-    <form onSubmit={onSubmit} className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full bg-white border border-gray-200 rounded-lg p-6 space-y-5">
+    <form onSubmit={onSubmit} className="w-full">
+      <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-5 shadow-sm">
         <h2 className="text-lg font-semibold">Content Links</h2>
 
-        {["instagram", "youtube", "twitter", "facebook", "linkedin", "people", "snapchat", "other"].map((field) => (
+        {["instagram", "youtube", "facebook", "twitter", "linkedin", "people"].map((field) => (
           <Input
             key={field}
             id={field}
-            label={`${field.charAt(0).toUpperCase() + field.slice(1)} Link`}
+            label={`${field === "people" ? "Pepul" : field.charAt(0).toUpperCase() + field.slice(1)} Link`}
             placeholder="Enter link"
             value={data[field]}
             onChange={onChange}
@@ -376,16 +429,16 @@ function StepTwo({ data, onChange, onSubmit, errors, goBack }) {
 
         {errors._links && <p className="text-red-500 text-sm">{errors._links}</p>}
 
-        <div className="flex gap-8">
+        <div className="flex gap-4">
           <button
             type="button"
             onClick={goBack}
-            className="w-full bg-gray-100 text-black py-3 rounded-md font-medium hover:bg-gray-200 transition"
+            className="w-full bg-gray-100 text-black py-3 rounded-xl font-medium hover:bg-gray-200 transition"
           >
             Back
           </button>
           <button
-            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-900 transition"
+            className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-900 transition"
             type="submit"
           >
             Submit
@@ -395,31 +448,18 @@ function StepTwo({ data, onChange, onSubmit, errors, goBack }) {
     </form>
   );
 }
-function StepThree({ data, onRadioChange, onSubmit, goBack }) {
+function StepThree({ data, onRadioChange, onChange, onSubmit, goBack }) {
   const [subStep, setSubStep] = useState(1);
 
   const next = () => setSubStep((s) => Math.min(s + 1, 4)); 
   const back = () => setSubStep((s) => Math.max(s - 1, 1));
 
-  const RadioCard = ({ label, checked, onChange, edit }) => (
-    <label
-      className={`border rounded-md p-4 flex items-center justify-between cursor-pointer
-      ${checked ? "border-black" : "border-gray-300"}`}
-    >
-      <div className="flex items-center gap-3">
-        <input type="radio" checked={checked} onChange={onChange} />
-        <span>{label}</span>
-      </div>
-      {edit && <span className="text-blue-500">✎</span>}
-    </label>
-  );
-
   return (
     <form
       onSubmit={subStep === 4 ? onSubmit : (e) => e.preventDefault()}
-      className="min-h-screen flex justify-between bg-gray-50 p-4 flex-col"
+      className="w-full flex flex-col gap-5"
     >
-      <div className="bg-white border rounded-lg p-6 space-y-6">
+      <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-6 shadow-sm">
 
         {/* HEADER */}
         <div className="flex justify-between items-center">
@@ -483,7 +523,7 @@ function StepThree({ data, onRadioChange, onSubmit, goBack }) {
 
               <button
                 type="button"
-                className="border rounded-md p-4 w-full text-left"
+                className="border rounded-xl p-4 w-full text-left"
               >
                 + Add an option if needed
               </button>
@@ -545,31 +585,44 @@ function StepThree({ data, onRadioChange, onSubmit, goBack }) {
           </>
         )}
 
-        {/* ===== STEP 4 (EXPIRY) - SHOULD ALWAYS SHOW ===== */}
+        {/* ===== STEP 4 (PRICING LIST) ===== */}
         {subStep === 4 && (
           <>
-            <p className="font-medium">Expiry</p>
+            <p className="font-medium">
+              License to use {data.uploadPlatform || "Platform"} —{" "}
+              {data.subscriberRange || "Select subscriber range"}
+            </p>
 
-            <div className="space-y-3">
-              <RadioCard
-                label="Expiry"
-                checked={data.expiryType === "expiry"}
-                onChange={() =>
-                  onRadioChange("expiryType", "expiry")
-                }
+            <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-4">
+              <p className="text-sm font-semibold text-gray-700">List 1</p>
+
+              <Input
+                id="uploadHeading"
+                label="Add heading"
+                placeholder="Enter your heading"
+                value={data.uploadHeading}
+                onChange={onChange}
               />
 
-              <RadioCard
+              <Input
+                id="uploadExpiryValue"
+                label="Expiry"
+                placeholder="Enter value"
+                value={data.uploadExpiryValue}
+                onChange={onChange}
+              />
+
+              <Input
+                id="uploadNonExpiryValue"
                 label="Non Expiry"
-                checked={data.expiryType === "non-expiry"}
-                onChange={() =>
-                  onRadioChange("expiryType", "non-expiry")
-                }
+                placeholder="Enter value"
+                value={data.uploadNonExpiryValue}
+                onChange={onChange}
               />
 
               <button
                 type="button"
-                className="border rounded-md p-4 w-full text-left"
+                className="border rounded-xl p-4 w-full text-left bg-white hover:bg-gray-50"
               >
                 + Add an option if needed
               </button>
@@ -579,11 +632,11 @@ function StepThree({ data, onRadioChange, onSubmit, goBack }) {
       </div>
 
       {/* FOOTER */}
-      <div className="flex gap-8">
+      <div className="flex gap-4">
         <button
           type="button"
           onClick={subStep === 1 ? goBack : back}
-          className="w-full bg-gray-100 py-3 rounded-md"
+          className="w-full bg-gray-100 text-black py-3 rounded-xl font-medium hover:bg-gray-200 transition"
         >
           Back
         </button>
@@ -598,7 +651,7 @@ function StepThree({ data, onRadioChange, onSubmit, goBack }) {
               next();
             }
           }}
-          className="w-full bg-black text-white py-3 rounded-md"
+          className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-900 transition"
         >
           {subStep === 4 ? "Submit" : "Next"}
         </button>
@@ -609,8 +662,8 @@ function StepThree({ data, onRadioChange, onSubmit, goBack }) {
 
 function StepFour({ data, onRadioChange, onSubmit, errors, goBack }) {
   return (
-    <form onSubmit={onSubmit} className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full bg-white border border-gray-200 rounded-lg p-6 space-y-5">
+    <form onSubmit={onSubmit} className="w-full">
+      <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-5 shadow-sm">
         <h2 className="text-lg font-semibold">Permission to Repost</h2>
 
         <div className="flex flex-col gap-2">
@@ -640,16 +693,16 @@ function StepFour({ data, onRadioChange, onSubmit, errors, goBack }) {
           {errors.repostPermission && <p className="text-red-500 text-xs">{errors.repostPermission}</p>}
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex gap-4">
           <button
             type="button"
             onClick={goBack}
-            className="w-full bg-gray-100 text-black py-3 rounded-md font-medium hover:bg-gray-200 transition"
+            className="w-full bg-gray-100 text-black py-3 rounded-xl font-medium hover:bg-gray-200 transition"
           >
             Back
           </button>
           <button
-            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-900 transition"
+            className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-900 transition"
             type="submit"
           >
             Submit
@@ -662,18 +715,18 @@ function StepFour({ data, onRadioChange, onSubmit, errors, goBack }) {
 
 function StepFive({ data, onChange, onSubmit, errors, goBack }) {
   return (
-    <form onSubmit={onSubmit} className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full bg-white border border-gray-200 rounded-lg p-6 space-y-5">
+    <form onSubmit={onSubmit} className="w-full">
+      <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-5 shadow-sm">
         <h2 className="text-lg font-semibold">Agreement</h2>
         <hr className="border-t border-gray-300" />
 
-        <div className="w-full px-5 py-3">
-          <p className="text-lg mb-5 text-gray-700 leading-relaxed">Annexture *</p>
+        <div className="w-full">
+          <p className="text-sm font-medium mb-2 text-gray-700">Annexture *</p>
           <textarea
             id="annexture"
             value={data.annexture}
             onChange={onChange}
-            className={`h-[150px] rounded-3xl w-full border p-5 bg-white ${
+            className={`h-[150px] rounded-2xl w-full border p-4 bg-white ${
               errors.annexture ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="Enter annexture details..."
@@ -681,13 +734,13 @@ function StepFive({ data, onChange, onSubmit, errors, goBack }) {
           {errors.annexture && <p className="text-red-500 text-xs">{errors.annexture}</p>}
         </div>
 
-        <div className="w-full px-5 py-3">
-          <p className="text-lg mb-5 text-gray-700 leading-relaxed">Agreement *</p>
+        <div className="w-full">
+          <p className="text-sm font-medium mb-2 text-gray-700">Agreement *</p>
           <textarea
             id="agreement"
             value={data.agreement}
             onChange={onChange}
-            className={`h-[150px] rounded-3xl w-full border p-5 bg-white ${
+            className={`h-[150px] rounded-2xl w-full border p-4 bg-white ${
               errors.agreement ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="Enter agreement details..."
@@ -695,16 +748,16 @@ function StepFive({ data, onChange, onSubmit, errors, goBack }) {
           {errors.agreement && <p className="text-red-500 text-xs">{errors.agreement}</p>}
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex gap-4">
           <button
             type="button"
             onClick={goBack}
-            className="w-full bg-gray-100 text-black py-3 rounded-md font-medium hover:bg-gray-200 transition"
+            className="w-full bg-gray-100 text-black py-3 rounded-xl font-medium hover:bg-gray-200 transition"
           >
             Back
           </button>
           <button
-            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-900 transition"
+            className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-900 transition"
             type="submit"
           >
             Submit
@@ -723,7 +776,7 @@ function Select({ label, options, id, value = "", onChange = () => {}, error = "
         id={id}
         value={value}
         onChange={onChange}
-        className={`border rounded-md px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-black ${
+        className={`border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-black ${
           error ? "border-red-500" : "border-gray-300"
         }`}
       >
@@ -739,21 +792,18 @@ function Select({ label, options, id, value = "", onChange = () => {}, error = "
   );
 }
 
-
-
-
-function RadioCard({ label, checked, onChange, rightIcon }) {
+function RadioCard({ label, checked, onChange, edit }) {
   return (
     <label
-      className={`border rounded-md p-4 flex items-center justify-between cursor-pointer
-        ${checked ? "border-black" : "border-gray-300"}`}
+      className={`border rounded-xl p-4 flex items-center justify-between cursor-pointer ${
+        checked ? "border-black" : "border-gray-300"
+      }`}
     >
       <div className="flex items-center gap-3">
         <input type="radio" checked={checked} onChange={onChange} />
         <span>{label}</span>
       </div>
-      {rightIcon && <span className="text-blue-500">✎</span>}
+      {edit ? <span className="text-blue-500">✎</span> : null}
     </label>
   );
 }
-

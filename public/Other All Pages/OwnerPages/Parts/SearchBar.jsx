@@ -8,7 +8,7 @@ export default function SearchBar({
 }) {
   return (
     <div
-      className={`flex items-center w-full bg-white rounded-xl px-4 py-3 h-15 shadow-sm ${className}`}
+      className={`flex items-center w-full bg-white rounded-xl px-4 py-3 h-14 shadow-sm ${className}`}
     >
       <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 mr-2" />
 

@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { createElement } from "react";
 import {
   HomeIcon,
   DocumentTextIcon,
@@ -20,7 +21,7 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-[#2b2b2b] to-black px-6 py-8">
       <nav className="flex flex-col gap-3">
-        {menuItems.map(({ name, path, icon: Icon }) => (
+        {menuItems.map(({ name, path, icon }) => (
           <NavLink
             key={name}
             to={path}
@@ -34,7 +35,11 @@ export default function Sidebar() {
               }`
             }
           >
-            <Icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+            {createElement(icon, {
+              className:
+                "h-5 w-5 transition-transform duration-300 group-hover:scale-110",
+              "aria-hidden": true,
+            })}
             <span>{name}</span>
           </NavLink>
         ))}

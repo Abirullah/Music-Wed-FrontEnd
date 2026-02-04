@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import OwnerDishBoard from "./OwnerDishBoard";
 import Sidebar from "./Parts/SideBar";
@@ -7,9 +6,10 @@ import OwnerStatement from "./OwnerStatement";
 import OwnerPrivacyAndContent from "./OwnerPrivacyAndContent";
 import UploadASong from "./SubPages/UploadASong"
 import UploadAContant from "./SubPages/UploadAContant"
+import MobileTopBar from "./Parts/MobileTopBar";
+import BottomNav from "./Parts/BottomNav";
 
 function Owner() {
-  const [currentPart, setCurrentPart] = useState(0);
   const location = useLocation();
 
   // Map paths to parts
@@ -19,18 +19,12 @@ function Owner() {
     "/owner/upload": 2,
     "/owner/piracy": 3,
     //subParts
-    "/owner/dashBoard/uploadSongs" :4,
-    "/owner/dashBoard/uploadContant" : 5,
+    "/owner/dashboard/uploadSongs": 4,
+    "/owner/dashboard/uploadContant": 5,
     
   };
 
-  // Update currentPart when route changes
-  useEffect(() => {
-    const part = pathToPart[location.pathname];
-    if (part !== undefined) {
-      setCurrentPart(part);
-    }
-  }, [location.pathname]);
+  const currentPart = pathToPart[location.pathname] ?? 0;
 
   let content;
 
@@ -57,14 +51,28 @@ function Owner() {
       content = <OwnerDishBoard />;
   }
 
+  const isSubPage = currentPart === 4 || currentPart === 5;
+
   return (
     <>
-      <div className="flex">
-        <Sidebar />
+      <div className="min-h-screen bg-gray-100">
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
 
-        <main className="ml-72 w-full min-h-screen bg-gray-100 p-8">
-          {content}
-        </main>
+        <div className="lg:ml-72">
+          {!isSubPage && <MobileTopBar />}
+
+          <main
+            className={`w-full min-h-screen bg-gray-100 p-4 lg:p-8 ${
+              !isSubPage ? "pb-24 lg:pb-8" : ""
+            }`}
+          >
+            {content}
+          </main>
+
+          {!isSubPage && <BottomNav />}
+        </div>
       </div>
     </>
   );

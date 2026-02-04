@@ -1,4 +1,4 @@
-  import SearchBar from "./Parts/SearchBar";
+import SearchBar from "./Parts/SearchBar";
   
 const Uploads = [
   {
@@ -31,10 +31,10 @@ const Uploads = [
 export default function OwnerUploads() {
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-sans">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Statement</h1>
-        <div className="relative w-1/3">
+    <div className="mx-auto w-full max-w-md lg:max-w-none font-sans">
+      <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-800">Upload list</h1>
+        <div className="relative w-full md:w-1/3">
           <SearchBar placeholder="Search" />
         </div>
       </div>
@@ -44,14 +44,16 @@ export default function OwnerUploads() {
           <thead className="bg-gray-100">
             <tr className="text-gray-400">
               <th className="px-4 py-4 mb-5 font-normal text-center">Type</th>
-              <th className="px-4 py-4 mb-5 font-normal text-center">Song</th>
+              <th className="px-4 py-4 mb-5 font-normal text-center">
+                Song name
+              </th>
               <th className="px-4 py-4 mb-5 font-normal text-center">
                 Affiliate Link
               </th>
-              <th className="px-4 py-4 mb-5 font-normal text-center">
+              <th className="hidden md:table-cell px-4 py-4 mb-5 font-normal text-center">
                 Artist Name
               </th>
-              <th className="px-4 py-4 mb-5 font-normal text-center">
+              <th className="hidden md:table-cell px-4 py-4 mb-5 font-normal text-center">
                 Copyright Owner
               </th>
             </tr>
@@ -67,18 +69,17 @@ export default function OwnerUploads() {
                   {row.type}
                 </td>
                 <td className="px-4 py-1 border-y text-center">
-                  {row.artistName}
+                  {row.song}
                 </td>
-                <td className="px-4  border-y text-lg max-w-[220px] break-all 
-                ">
+                <td className="px-4 py-3 md:py-1 border-y border-r rounded-r-lg md:border-r-0 md:rounded-r-none text-sm md:text-base max-w-[220px] break-all">
                   {row.affiliateLink}
                 </td>
 
-                <td className="px-4 py-1 border-y text-center">
+                <td className="hidden md:table-cell px-4 py-1 border-y text-center">
                   {row.artistName}
                 </td>
 
-                <td className="px-4 py-1 last:rounded-r-lg border-y border-r  text-center">
+                <td className="hidden md:table-cell px-4 py-1 last:rounded-r-lg border-y border-r text-center">
                   {row.copyrightOwner}
                 </td>
               </tr>
