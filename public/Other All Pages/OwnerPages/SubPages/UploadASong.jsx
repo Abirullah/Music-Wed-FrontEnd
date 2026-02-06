@@ -4,6 +4,7 @@ import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
 import StepperPills from "../Parts/StepperPills";
 import MobileBottomSheet from "../Parts/MobileBottomSheet";
+import { prependOwnerUpload } from "../../../../src/storage/ownerUploadsStore";
 
 const initialFormState = {
   musicCategory: "Song",
@@ -164,12 +165,36 @@ export default function UploadASong() {
 
   const handleFinalSubmit = () => {
     console.log("FINAL SONG DATA:", formData);
+
+    const affiliateLink =
+      [
+        formData.affiliateLink,
+        formData.spotify,
+        formData.youtube,
+        formData.gaana,
+        formData.amazon,
+        formData.wynk,
+        formData.apple,
+        formData.other,
+        formData.musicLink,
+      ]
+        .map((v) => (v || "").trim())
+        .find(Boolean) || "";
+
+    prependOwnerUpload({
+      type: "Music",
+      song: formData.musicName || "Untitled",
+      affiliateLink,
+      artistName: formData.artistName || "",
+      copyrightOwner: formData.copyright || "",
+    });
+
     localStorage.removeItem("uploadedSong");
     localStorage.removeItem("uploadCompleted");
-    setFormData(initialFormState);
-    setCompleted({ 1: false, 2: false, 3: false, 4: false, 5: false });
-    setActive(1);
-    alert("Song uploaded successfully ✅");
+
+    navigate("/owner/upload", {
+      state: { uploadSuccess: "music" },
+    });
   };
 
   const handleSubmitStep = (step) => (e) => {

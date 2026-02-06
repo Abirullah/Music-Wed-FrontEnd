@@ -2,27 +2,46 @@ import { useNavigate } from "react-router-dom";
 import SearchBar from "./Parts/SearchBar";
 import Img from "../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import { getOwnerUploads } from "../../../src/storage/ownerUploadsStore";
 
 
 
 
 export default function DashboardHome() {
 
-  const navigate = useNavigate()
+	  const navigate = useNavigate()
 
-    const uploads = [
-      { id: 1, type: "music", title: "Lorem ipsum" },
-      { id: 2, type: "video", title: "Lorem ipsum" },
-      { id: 3, type: "music", title: "Lorem ipsum" },
-      { id: 4, type: "video", title: "Lorem ipsum" },
-      { id: 5, type: "music", title: "Lorem ipsum" },
-      { id: 6, type: "video", title: "Lorem ipsum" },
-      { id: 7, type: "music", title: "Lorem ipsum" },
-      { id: 8, type: "video", title: "Lorem ipsum" },
-    ];
+	    const safeJsonParse = (value, fallback) => {
+	      try {
+	        return JSON.parse(value ?? "");
+	      } catch {
+	        return fallback;
+	      }
+	    };
 
-  return (
-    <div className="mx-auto w-full max-w-md lg:max-w-none flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-8 lg:items-start">
+	    const currentUser = safeJsonParse(localStorage.getItem("currentUser"), null);
+	    const ownerName = currentUser?.fullName || "Owner";
+	    const ownerAvatar = currentUser?.profilePic || Img;
+
+	    const ownerUploads = getOwnerUploads();
+	    const musicUploaded = ownerUploads.filter(
+	      (u) => String(u?.type || "").toLowerCase() === "music",
+	    ).length;
+	    const contentUploaded = ownerUploads.filter(
+	      (u) => String(u?.type || "").toLowerCase() === "content",
+	    ).length;
+
+	    const recentUploads = ownerUploads.slice(0, 8).map((u) => ({
+	      id: u.id,
+	      type: String(u?.type || "").toLowerCase() === "music" ? "music" : "video",
+	      title: u.song || "Untitled",
+	      subtitle: u.artistName || u.type || "",
+	    }));
+
+	    const latestUpload = ownerUploads[0];
+
+	  return (
+	    <div className="mx-auto w-full max-w-md lg:max-w-none flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-8 lg:items-start">
       <div className="space-y-6 lg:space-y-8 w-full lg:w-[65%]">
         <div className="hidden lg:block">
           <p className="text-4xl font-bold my-5">Dashboard</p>
@@ -34,11 +53,11 @@ export default function DashboardHome() {
         </div>
 
         {/* Mobile quick card */}
-        <button
-          type="button"
-          onClick={() => navigate("/owner/upload")}
-          className="lg:hidden w-full rounded-2xl bg-white px-4 py-3 shadow-sm flex items-center justify-between"
-        >
+	        <button
+	          type="button"
+	          onClick={() => navigate("/owner/upload")}
+	          className="lg:hidden w-full rounded-2xl bg-white px-4 py-3 shadow-sm flex items-center justify-between"
+	        >
           <div className="flex items-center gap-3 text-left">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef2ff]">
               <svg
@@ -56,39 +75,49 @@ export default function DashboardHome() {
               </svg>
             </div>
 
-            <div>
-              <p className="text-sm font-semibold text-black">Lorem ipsum</p>
-              <p className="text-xs text-gray-400">
-                Lorem ipsum dolor sit amet consect amet
-              </p>
-            </div>
-          </div>
-          <ChevronRightIcon className="h-5 w-5 text-gray-400" />
-        </button>
+	            <div>
+	              <p className="text-sm font-semibold text-black">
+	                {latestUpload?.song || "Upload list"}
+	              </p>
+	              <p className="text-xs text-gray-400">
+	                Tap to view all your uploads
+	              </p>
+	            </div>
+	          </div>
+	          <ChevronRightIcon className="h-5 w-5 text-gray-400" />
+	        </button>
 
         {/* Welcome Card */}
         <div className="bg-white rounded-2xl px-4 py-4 lg:px-6 lg:py-3 shadow-sm flex flex-col lg:flex-row lg:justify-between gap-4">
-          <div className="flex gap-4 lg:gap-6 items-center">
-            <img
-              src={Img}
-              className="h-12 w-12 lg:h-16 lg:w-16 rounded-full object-cover"
-              alt=""
-            />
+	          <div className="flex gap-4 lg:gap-6 items-center">
+	            <img
+	              src={ownerAvatar}
+	              className="h-10 w-10  lg:h-16 lg:w-16 rounded-full object-cover"
+	              alt=""
+	            />
 
             <div>
-              <p className="text-gray-500 font-semibold text-sm lg:text-xl">
-                Welcome to Copyva
-              </p>
-              <h2 className="text-lg lg:text-2xl font-bold">Thomas varghese</h2>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 lg:flex lg:gap-10 lg:items-center">
-            <Stat label="Music Uploaded" value="10" color="text-blue-500" />
-            <div className="hidden lg:block h-10 w-px bg-gray-300" />
-            <Stat label="Content Uploaded" value="24" color="text-orange-400" />
-          </div>
-        </div>
+	              <p className="text-gray-500 font-semibold text-sm lg:text-xl">
+	                Welcome to Copyva
+	              </p>
+	              <h2 className="text-lg lg:text-2xl font-bold">{ownerName}</h2>
+	            </div>
+	          </div>
+	
+	          <div className="grid grid-cols-2 gap-4 lg:flex lg:gap-10 lg:items-center">
+	            <Stat
+	              label="Music Uploaded"
+	              value={String(musicUploaded)}
+	              color="text-blue-500"
+	            />
+	            <div className="hidden lg:block h-10 w-px bg-gray-300" />
+	            <Stat
+	              label="Content Uploaded"
+	              value={String(contentUploaded)}
+	              color="text-orange-400"
+	            />
+	          </div>
+	        </div>
 
         {/* Upload Cards */}
         <div className="grid grid-cols-2 gap-4 lg:gap-6">
@@ -99,7 +128,7 @@ export default function DashboardHome() {
             borderColor="border-blue-200"
             svgIcon={
               <svg
-                className="w-12 h-12 text-[rgb(102,116,247)]"
+                className="w-10 h-10 md:h-12 md:w-12 text-[rgb(102,116,247)]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -122,7 +151,7 @@ export default function DashboardHome() {
             borderColor="border-orange-200"
             svgIcon={
               <svg
-                className="w-12 h-12 text-[#f97316]"
+                className="w-10 h-10 md:h-12 md:w-12 text-[#f97316]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -159,34 +188,45 @@ export default function DashboardHome() {
               </button>
           </div>
 
-          <div className="flex gap-4 lg:gap-5 items-start">
+	          <div className="flex gap-4 lg:gap-5 items-start">
             {/* Chart */}
             <div className="w-[70%] lg:w-[80%]">
-              <LineChart
-                labels={["Jan", "Feb", "Mar", "Apr", "May", "Jun"]}
-                series={[8, 6, 10, 9, 13, 12]}
-                highlightLabel="Music & content"
-                highlightValue="10"
-                highlightIndex={2}
-              />
+	              <LineChart
+	                labels={["Jan", "Feb", "Mar", "Apr", "May", "Jun"]}
+	                series={[8, 6, 10, 9, 13, 12]}
+	                highlightLabel="Music & content"
+	                highlightValue={String(musicUploaded + contentUploaded)}
+	                highlightIndex={2}
+	              />
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 gap-3 w-[30%] lg:w-[18%]">
-              <Summary label="Music & Content" value="24" />
-              <Summary label="Music" value="14" color="text-blue-500" />
-              <Summary label="Content" value="10" color="text-orange-400" />
-            </div>
-          </div>
-        </div>
-      </div>
+	            <div className="grid grid-cols-1 gap-3 w-[30%] lg:w-[18%]">
+	              <Summary
+	                label="Music & Content"
+	                value={String(musicUploaded + contentUploaded)}
+	              />
+	              <Summary
+	                label="Music"
+	                value={String(musicUploaded)}
+	                color="text-blue-500"
+	              />
+	              <Summary
+	                label="Content"
+	                value={String(contentUploaded)}
+	                color="text-orange-400"
+	              />
+	            </div>
+	          </div>
+	        </div>
+	      </div>
 
       <div className="hidden lg:block w-[30%] self-start mt-20 bg-white rounded-2xl h-auto border border-gray-100 p-8 shadow-sm font-sans">
         <h3 className="text-xl font-bold text-black mb-10">Recent Uploads</h3>
 
-        <div className="space-y-6">
-          {uploads.map((item) => (
-            <div key={item.id} className="flex items-center gap-4">
+	        <div className="space-y-6">
+	          {recentUploads.map((item) => (
+	            <div key={item.id} className="flex items-center gap-4">
               {/* Icon Container */}
               <div
                 className={`p-3 rounded-full flex items-center justify-center ${
@@ -227,17 +267,17 @@ export default function DashboardHome() {
               </div>
 
               {/* Text Content */}
-              <div className="flex flex-col">
-                <span className="text-[17px] font-semibold text-black leading-tight">
-                  {item.title}
-                </span>
-                <span className="text-[13px] text-gray-400 leading-tight">
-                  Lorem ipsum dolor sit amet consect amet
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+	              <div className="flex flex-col">
+	                <span className="text-[17px] font-semibold text-black leading-tight">
+	                  {item.title}
+	                </span>
+	                <span className="text-[13px] text-gray-400 leading-tight">
+	                  {item.subtitle}
+	                </span>
+	              </div>
+	            </div>
+	          ))}
+	        </div>
 
         <div className="mt-8">
           <button className="text-black font-bold text-sm underline underline-offset-4 decoration-2 hover:opacity-70 transition-opacity">
@@ -263,7 +303,7 @@ function UploadCard({ title, desc, bg, borderColor, svgIcon, iconBg, onUpload })
           </div>
         </div>
         <div>
-          <h4 className="text-lg font-bold mb-2">{title}</h4>
+          <h4 className="md:text-lg text-md font-bold mb-2">{title}</h4>
           <p className="text-gray-800">{desc}</p>
         </div>
       </div>

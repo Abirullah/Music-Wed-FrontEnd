@@ -1,7 +1,25 @@
 import MusicIcon from "../../assets/Icons/Vector.png";
-import MusicPlayedIcon from "../../assets/Icons/Group.png";
+import { PauseIcon, PlayIcon } from "@heroicons/react/24/solid";
+import { useAudioPlayer } from "../../src/audio/AudioPlayerContext";
 
-function MusicCard({ image, title, subtitle, classes = "" }) {
+function MusicCard({ image, title, subtitle, classes = "", track, audioSrc }) {
+  const { currentTrack, isPlaying, toggle } = useAudioPlayer();
+  const playableTrack =
+    track?.audioSrc || audioSrc
+      ? {
+          id: track?.id || title,
+          title: track?.title || title,
+          artist: track?.artist || subtitle,
+          cover: track?.cover || image,
+          audioSrc: track?.audioSrc || audioSrc,
+        }
+      : null;
+
+  const isCurrent =
+    playableTrack?.audioSrc &&
+    currentTrack?.audioSrc === playableTrack.audioSrc;
+  const showPause = Boolean(isCurrent && isPlaying);
+
   return (
     <div
       className={`relative ${classes} rounded-xl sm:rounded-2xl overflow-hidden bg-cover bg-center group cursor-pointer`}
@@ -38,14 +56,24 @@ function MusicCard({ image, title, subtitle, classes = "" }) {
             </p>
           </div>
 
-          {/* Play Icon (hidden on sm & below) */}
-          <div className="hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <img
-              src={MusicPlayedIcon}
-              alt="play"
-              className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
-            />
-          </div>
+          {/* Play button */}
+          {playableTrack ? (
+            <button
+              type="button"
+              aria-label={showPause ? "Pause" : "Play"}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggle(playableTrack);
+              }}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-opacity duration-300 md:h-11 md:w-11 md:opacity-0 md:group-hover:opacity-100"
+            >
+              {showPause ? (
+                <PauseIcon className="h-5 w-5" aria-hidden />
+              ) : (
+                <PlayIcon className="h-5 w-5 pl-[1px]" aria-hidden />
+              )}
+            </button>
+          ) : null}
         </div>
       </div>
     </div>

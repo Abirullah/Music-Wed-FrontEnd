@@ -1,6 +1,7 @@
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import Button from "./Button";
+import { useAudioPlayer } from "../../src/audio/AudioPlayerContext";
 
 export default function ReusableList({
   title,
@@ -18,6 +19,10 @@ export default function ReusableList({
   onMenuClick,
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const { currentTrack, isPlaying, toggle } = useAudioPlayer();
+
+  const isItemPlaying = (item) =>
+    Boolean(item?.audioSrc && currentTrack?.audioSrc === item.audioSrc && isPlaying);
 
   const renderLastCell = (item, index) => {
     const lastColumnKey = columns[columns.length - 1]?.key;
@@ -126,40 +131,84 @@ export default function ReusableList({
 
       {data.length > 0 ? (
         <>
-          {/* Mobile List */}
-          <div className="md:hidden divide-y divide-black/10">
-            {data.map((item, index) => {
-              const firstColumn = columns[0];
-              const titleText = firstColumn ? item[firstColumn.key] : "";
-
-              return (
-                <div
-                  key={index}
-                  className="flex items-center justify-between gap-3 py-3 cursor-pointer"
-                  onClick={() => onRowClick && onRowClick(item)}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <svg
-                      width="40"
-                      height="40"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-9 h-9 text-black flex-shrink-0"
-                    >
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                      <polygon points="10,8 16,12 10,16" fill="currentColor" />
-                    </svg>
-
-                    <div className="min-w-0">
-                      <p className="font-semibold text-sm text-gray-900 truncate">
-                        {titleText}
+	          {/* Mobile List */}
+	          <div className="md:hidden divide-y divide-black/10">
+	            {data.map((item, index) => {
+	              const firstColumn = columns[0];
+	              const titleText = firstColumn ? item[firstColumn.key] : "";
+	              const itemIsPlaying = isItemPlaying(item);
+	
+	              return (
+	                <div
+	                  key={index}
+	                  className="flex items-center justify-between gap-3 py-3 cursor-pointer"
+	                  onClick={() => onRowClick && onRowClick(item)}
+	                >
+	                  <div className="flex items-center gap-2 min-w-0">
+	                    <button
+	                      type="button"
+	                      className={`w-9 h-9 flex items-center justify-center flex-shrink-0 ${
+	                        item?.audioSrc ? "text-black" : "text-gray-400"
+	                      }`}
+	                      aria-label={
+	                        item?.audioSrc
+	                          ? itemIsPlaying
+	                            ? "Pause"
+	                            : "Play"
+	                          : "Open"
+	                      }
+	                      onClick={(e) => {
+	                        e.stopPropagation();
+	                        if (item?.audioSrc) toggle(item);
+	                        else onRowClick?.(item);
+	                      }}
+	                    >
+	                      <svg
+	                        width="40"
+	                        height="40"
+	                        viewBox="0 0 24 24"
+	                        fill="none"
+	                        xmlns="http://www.w3.org/2000/svg"
+	                        className="w-9 h-9"
+	                      >
+	                        <circle
+	                          cx="12"
+	                          cy="12"
+	                          r="10"
+	                          stroke="currentColor"
+	                          strokeWidth="2"
+	                        />
+	                        {itemIsPlaying ? (
+	                          <>
+	                            <rect
+	                              x="9.2"
+	                              y="8"
+	                              width="2.6"
+	                              height="8"
+	                              rx="0.6"
+	                              fill="currentColor"
+	                            />
+	                            <rect
+	                              x="12.8"
+	                              y="8"
+	                              width="2.6"
+	                              height="8"
+	                              rx="0.6"
+	                              fill="currentColor"
+	                            />
+	                          </>
+	                        ) : (
+	                          <polygon
+	                            points="10,8 16,12 10,16"
+	                            fill="currentColor"
+	                          />
+	                        )}
+	                      </svg>
+	                    </button>
+	
+	                    <div className="min-w-0">
+	                      <p className="font-semibold text-sm text-gray-900 truncate">
+	                        {titleText}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
                         Lorem ipsum dolor sit amet consect amet
@@ -198,17 +247,17 @@ export default function ReusableList({
             </div>
 
             <div>
-              {data.map((item, index) => (
-                <div
-                  key={index}
-                  className="grid gap-0 items-center px-4 py-4 text-sm text-center hover:scale-101 transition-all duration-300 cursor-pointer"
+	              {data.map((item, index) => (
+	                <div
+	                  key={index}
+	                  className="grid gap-0 items-center px-4 py-4 text-sm text-center hover:scale-101 transition-all duration-300 cursor-pointer"
                   style={{
                     gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
                   }}
                   onClick={() => onRowClick && onRowClick(item)}
                 >
-                  {columns.map((column, colIdx) => {
-                    const isLastColumn = colIdx === columns.length - 1;
+	                  {columns.map((column, colIdx) => {
+	                    const isLastColumn = colIdx === columns.length - 1;
 
                     if (isLastColumn) {
                       return (
@@ -221,37 +270,77 @@ export default function ReusableList({
                       );
                     }
 
-                    const isFirstColumn = colIdx === 0;
-                    return (
-                      <div
-                        key={colIdx}
-                        className={isFirstColumn ? "flex items-center gap-3 text-left" : ""}
-                      >
-                        {isFirstColumn ? (
-                          <>
-                            <svg
-                              width="40"
-                              height="40"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="text-black flex-shrink-0"
-                            >
-                              <circle
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              />
-                              <polygon
-                                points="10,8 16,12 10,16"
-                                fill="currentColor"
-                              />
-                            </svg>
-                            <div className="flex flex-col">
-                              <p className="font-medium">{item[column.key]}</p>
-                              {column.subKey && (
+	                    const isFirstColumn = colIdx === 0;
+	                    const itemIsPlaying = isItemPlaying(item);
+	                    return (
+	                      <div
+	                        key={colIdx}
+	                        className={isFirstColumn ? "flex items-center gap-3 text-left" : ""}
+	                      >
+	                        {isFirstColumn ? (
+	                          <>
+	                            <button
+	                              type="button"
+	                              className={`flex-shrink-0 ${
+	                                item?.audioSrc ? "text-black" : "text-gray-400"
+	                              }`}
+	                              aria-label={
+	                                item?.audioSrc
+	                                  ? itemIsPlaying
+	                                    ? "Pause"
+	                                    : "Play"
+	                                  : "Open"
+	                              }
+	                              onClick={(e) => {
+	                                e.stopPropagation();
+	                                if (item?.audioSrc) toggle(item);
+	                                else onRowClick?.(item);
+	                              }}
+	                            >
+	                              <svg
+	                                width="40"
+	                                height="40"
+	                                viewBox="0 0 24 24"
+	                                fill="none"
+	                                xmlns="http://www.w3.org/2000/svg"
+	                              >
+	                                <circle
+	                                  cx="12"
+	                                  cy="12"
+	                                  r="10"
+	                                  stroke="currentColor"
+	                                  strokeWidth="2"
+	                                />
+	                                {itemIsPlaying ? (
+	                                  <>
+	                                    <rect
+	                                      x="9.2"
+	                                      y="8"
+	                                      width="2.6"
+	                                      height="8"
+	                                      rx="0.6"
+	                                      fill="currentColor"
+	                                    />
+	                                    <rect
+	                                      x="12.8"
+	                                      y="8"
+	                                      width="2.6"
+	                                      height="8"
+	                                      rx="0.6"
+	                                      fill="currentColor"
+	                                    />
+	                                  </>
+	                                ) : (
+	                                  <polygon
+	                                    points="10,8 16,12 10,16"
+	                                    fill="currentColor"
+	                                  />
+	                                )}
+	                              </svg>
+	                            </button>
+	                            <div className="flex flex-col">
+	                              <p className="font-medium">{item[column.key]}</p>
+	                              {column.subKey && (
                                 <p className="text-gray-500 text-xs">
                                   {column.label2} {item[column.subKey]}
                                 </p>

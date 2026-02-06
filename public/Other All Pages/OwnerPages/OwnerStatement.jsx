@@ -24,11 +24,11 @@ const OwnerStatement = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-10">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-10">
         {stats.map((stat, index) => (
           <div
             key={index}
-            className={`px-3 sm:px-4 lg:px-6 py-3 rounded-xl border-2 transition-all ${
+            className={`px-3 sm:px-4 lg:px-6 py-3  rounded-xl border-2 transition-all ${
               stat.active
                 ? "bg-blue-50 border-blue-400"
                 : "bg-white border-gray-100 shadow-sm"

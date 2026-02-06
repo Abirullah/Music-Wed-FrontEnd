@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import HerImg from "../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import { SideMenu } from "./SideMenu";
 import { useNavigate } from "react-router-dom";
@@ -11,32 +11,29 @@ export default function NavBar({
   bgImg,
 }) {
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const [userProfile, setUserProfile] = useState({
-    name: "Lorem, ipsum.",
-    profilePic: HerImg,
-    Role: "user",
+  const [currentUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem("currentUser");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   });
 
-  const navigate = useNavigate();
-
-  /* ================= AUTH CHECK ================= */
-  useEffect(() => {
-    try {
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      if (currentUser) {
-        setIsAuthenticated(true);
-        setUserProfile({
-          name: currentUser.fullName,
-          profilePic: HerImg,
-          Role: currentUser.Role,
-        });
+  const isAuthenticated = Boolean(currentUser);
+  const userProfile = currentUser
+    ? {
+        name: currentUser.fullName,
+        profilePic: HerImg,
+        Role: currentUser.Role,
       }
-    } catch (err) {
-      localStorage.removeItem("currentUser");
-    }
-  }, []);
+    : {
+        name: "Lorem, ipsum.",
+        profilePic: HerImg,
+        Role: "user",
+      };
+
+  const navigate = useNavigate();
 
   const handleProfileClick = () => {
     if (onProfileClick) return onProfileClick();

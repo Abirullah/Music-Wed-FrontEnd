@@ -1,6 +1,8 @@
 import "./App.css";
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { AudioPlayerProvider } from "./audio/AudioPlayerContext";
+import GlobalAudioPlayer from "./audio/GlobalAudioPlayer";
 import HomePage from "../public/Other All Pages/HomePage";
 import Purchases from "../public/Other All Pages/UserProfilePages/UserProfileDetails";
 import MusicMainPage from "../public/Other All Pages/MusicDetails/MusicMainPage";
@@ -50,7 +52,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <AudioPlayerProvider>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/Profile" element={<Purchases />} />
@@ -69,6 +71,7 @@ function App() {
         <Route path="/owner/statement" element={<Owner />} />
         <Route path="/owner/upload" element={<Owner />} />
         <Route path="/owner/piracy" element={<Owner />} />
+        <Route path="/owner/settings" element={<Owner />} />
         <Route path="/owner/login" element={<OwnerLogin />} />
         <Route path="/owner/signup" element={<OwnerSignup />} />
         <Route
@@ -82,13 +85,12 @@ function App() {
 
 
           {/* owner subroutes */}
-          <Route path = "/owner/dashboard/uploadSongs" element = {<Owner/>}/>
-          <Route path = "/owner/dashboard/uploadContant" element = {<Owner/>}/>
-      </Routes>
+	          <Route path = "/owner/dashboard/uploadSongs" element = {<Owner/>}/>
+	          <Route path = "/owner/dashboard/uploadContant" element = {<Owner/>}/>
+	      </Routes>
 
-    
-
-    </>
+      <GlobalAudioPlayer />
+    </AudioPlayerProvider>
   );
 }
 

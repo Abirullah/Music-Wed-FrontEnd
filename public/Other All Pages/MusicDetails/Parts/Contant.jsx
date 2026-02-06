@@ -4,16 +4,11 @@ import FilterMenu from "../../../Component/FilterMenu";
 import ReusableList from "../../../Component/ReusableList";
 import { Heart } from "../../../../assets/Icons/IconExporter";
 import Button from "../../../Component/Button";
-import HeroImg from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg"
+import HeroImg from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import { ShoppingCart } from "lucide-react";
+import { mockContents } from "../../../../src/mock/catalog";
 
-const data = Array(18).fill({
-  title: "Lorem ipsum dolor sit",
-  by: "Lorem",
-  genres: "Lorem ipsum do",
-  mood: "Lorem ipsum do",
-  artists: "Lorem ipsum do",
-});
+const data = mockContents;
 
 const columns = [
   { label: "Title", key: "title", subKey: "by", label2: "by", align: "left" },
@@ -141,12 +136,12 @@ function Contant() {
               ✕
             </button>
 
-            <div className="relative">
-              <img
-                src={HeroImg}
-                alt="Video Preview"
-                className="w-full object-cover"
-              />
+	            <div className="relative">
+	              <img
+	                src={selectedItem?.cover || HeroImg}
+	                alt="Video Preview"
+	                className="w-full object-cover"
+	              />
 
               <button className="absolute inset-0 flex items-center justify-center">
                 <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center">
@@ -184,13 +179,13 @@ function Contant() {
         </div>
         <div className="w-full md:w-[78%] shadow-sm shadow-black overflow-hidden md:pr-5">
           <ReusableList
-            title="List of Contant"
+            title="Content library"
             data={data}
             columns={columns}
             renderCell={renderCell}
             lastColumnType="custom"
-            emptyMessage="No Contant yet"
-            emptyDescription="Browse through our large section of royalty-free music"
+            emptyMessage="No content yet"
+            emptyDescription="Browse through our curated content library"
             exploreButtonText="Explore More"
             onRowClick={handleOpenPreview}
             onMenuClick={() => setMobileFiltersOpen(true)}

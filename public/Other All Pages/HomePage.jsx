@@ -12,6 +12,7 @@ import SmallNavBar from "../Component/SmallNavBar";
 import CompanyAndOurContant from "../Parts/CompanyAndOur contant";
 import PeopleSaysAboutUs from "../Parts/PeopleSaysAboutUs";
 import Footer from "../Component/Footer";
+import { mockTracks } from "../../src/mock/catalog";
 
 import {
   creatorIcon,
@@ -209,21 +210,22 @@ export default function HomePage() {
     gap-4 mt-10
     max-w-6xl mx-auto
   "
->
-  {Array.from({ length: 6 }).map((_, i) => (
-    <div
-      key={i}
-      className={i >= 4 ? "hidden md:block" : ""}
-    >
-      <MusicCard
-        image={HeroImg}
-        title="Lorem Ipsum Dolor"
-        subtitle="Top Album"
-        classes="h-44 sm:h-52 rounded-xl"
-      />
-    </div>
-  ))}
-</div>
+	>
+	  {mockTracks.slice(0, 6).map((track, i) => (
+	    <div
+	      key={track.id}
+	      className={i >= 4 ? "hidden md:block" : ""}
+	    >
+	      <MusicCard
+	        image={track.cover}
+	        title={track.title}
+	        subtitle={track.artist}
+	        track={track}
+	        classes="h-44 sm:h-52 rounded-xl"
+	      />
+	    </div>
+	  ))}
+	</div>
 
 
         <div className="flex justify-center mt-6">

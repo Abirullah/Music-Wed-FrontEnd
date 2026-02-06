@@ -4,16 +4,16 @@ import FilterMenu from "../../../Component/FilterMenu";
 import ReusableList from "../../../Component/ReusableList";
 import { Heart } from "../../../../assets/Icons/IconExporter";
 import Button from "../../../Component/Button";
-import HeroImg from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg"
+import HeroImg from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import { ShoppingCart } from "lucide-react";
+import { mockTracks } from "../../../../src/mock/catalog";
+import { useAudioPlayer } from "../../../../src/audio/AudioPlayerContext";
 
-const data = Array(18).fill({
-  title: "Lorem ipsum dolor sit",
-  by: "Lorem",
-  genres: "Lorem ipsum do",
-  mood: "Lorem ipsum do",
-  artists: "Lorem ipsum do",
-});
+const data = mockTracks.map((track) => ({
+  ...track,
+  by: track.artist,
+  artists: track.artist,
+}));
 
 const columns = [
   { label: "Title", key: "title", subKey: "by", label2: "by", align: "left" },
@@ -27,6 +27,7 @@ function Music() {
   const [openPreview, setOpenPreview] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const { currentTrack, isPlaying, toggle } = useAudioPlayer();
 
   const handleOpenPreview = (item) => {
     setSelectedItem(item);
@@ -126,8 +127,8 @@ function Music() {
         </>
       )}
 
-      {openPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+	      {openPreview && (
+	        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
           <div
             className="absolute inset-0"
             onClick={() => setOpenPreview(false)}
@@ -141,19 +142,29 @@ function Music() {
               ✕
             </button>
 
-            <div className="relative">
-              <img
-                src={HeroImg}
-                alt="Video Preview"
-                className="w-full object-cover"
-              />
-
-              <button className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center">
-                  ▶
-                </div>
-              </button>
-            </div>
+	            <div className="relative">
+	              <img
+	                src={selectedItem?.cover || HeroImg}
+	                alt="Video Preview"
+	                className="w-full object-cover"
+	              />
+	
+	              <button
+	                type="button"
+	                className="absolute inset-0 flex items-center justify-center"
+	                onClick={() => {
+	                  if (selectedItem?.audioSrc) toggle(selectedItem);
+	                }}
+	              >
+	                <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center">
+	                  {selectedItem?.audioSrc &&
+	                  currentTrack?.audioSrc === selectedItem.audioSrc &&
+	                  isPlaying
+	                    ? "❚❚"
+	                    : "▶"}
+	                </div>
+	              </button>
+	            </div>
 
             <div className="p-4 text-white">
               <div className="flex justify-between text-sm mb-2">
@@ -184,12 +195,12 @@ function Music() {
         </div>
         <div className="w-full md:w-[78%] shadow-sm shadow-black overflow-hidden md:pr-5">
           <ReusableList
-            title="List of Favourite"
+            title="Music library"
             data={data}
             columns={columns}
             renderCell={renderCell}
             lastColumnType="custom"
-            emptyMessage="No Favourite yet"
+            emptyMessage="No tracks yet"
             emptyDescription="Browse through our large section of royalty-free music"
             exploreButtonText="Explore More"
             onRowClick={handleOpenPreview}

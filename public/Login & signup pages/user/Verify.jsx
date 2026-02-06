@@ -111,6 +111,10 @@ export default function UserVerify() {
         ))}
       </div>
 
+      {error ? (
+        <p className="text-sm font-medium text-red-600">{error}</p>
+      ) : null}
+
       <p className="text-gray-700 hidden md:block">
         Send code again{" "}
         <span className="font-semibold text-gray-800">00:20</span>
@@ -124,7 +128,6 @@ export default function UserVerify() {
       text="Submit"
       onClick={handleVerify}
     />
-6 
      <p className="text-gray-700 block md:hidden mx-auto">
         Send code again{" "}
         <span className="font-semibold text-gray-800">00:20</span>
@@ -146,4 +149,3 @@ export default function UserVerify() {
     </div>
   );
 }
-

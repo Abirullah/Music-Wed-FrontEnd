@@ -4,6 +4,7 @@ import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
 import StepperPills from "../Parts/StepperPills";
 import MobileBottomSheet from "../Parts/MobileBottomSheet";
+import { prependOwnerUpload } from "../../../../src/storage/ownerUploadsStore";
 
 const initialFormState = {
   uploadPermission: "",
@@ -157,12 +158,34 @@ export default function UploadAContent() {
 
   const handleFinalSubmit = () => {
     console.log("FINAL DATA:", formData);
+
+    const affiliateLink =
+      [
+        formData.youtube,
+        formData.instagram,
+        formData.facebook,
+        formData.twitter,
+        formData.linkedin,
+        formData.people,
+        formData.other,
+      ]
+        .map((v) => (v || "").trim())
+        .find(Boolean) || "";
+
+    prependOwnerUpload({
+      type: "Content",
+      song: formData.contentName || "Untitled",
+      affiliateLink,
+      artistName: formData.artistName || "",
+      copyrightOwner: formData.copyright || "",
+    });
+
     localStorage.removeItem("uploadContent");
     localStorage.removeItem("uploadContentCompleted");
-    setFormData(initialFormState);
-    setCompleted({ 1: false, 2: false, 3: false, 4: false, 5: false });
-    setActive(1);
-    alert("Content uploaded successfully ✅");
+
+    navigate("/owner/upload", {
+      state: { uploadSuccess: "content" },
+    });
   };
 
   const goBack = () => {

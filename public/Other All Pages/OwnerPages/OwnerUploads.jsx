@@ -1,34 +1,16 @@
 import SearchBar from "./Parts/SearchBar";
-  
-const Uploads = [
-  {
-    id: 1,
-    type: "License",
-    song: "Demo Music",
-    affiliateLink: "https://affiliate.example.com/echotune",
-    artistName: "Michael Jordan",
-    copyrightOwner: "EchoTune Records",
-  },
-  {
-    id: 2,
-    type: "Royalty-Free",
-    song: "Demo Music",
-    affiliateLink: "https://affiliate.example.com/nightvibes",
-    artistName: "Sarah Beats",
-    copyrightOwner: "Vibe Studios",
-  },
-  {
-    id: 3,
-    type: "Exclusive",
-    song: "Demo Music",
-    affiliateLink: "https://affiliate.example.com/dreamflow",
-    artistName: "Alex Wave",
-    copyrightOwner: "WaveSound Ltd",
-  },
-];
+import { useLocation, useNavigate } from "react-router-dom";
+import UploadSuccessPopup from "./Parts/UploadSuccessPopup";
+import { getOwnerUploads } from "../../../src/storage/ownerUploadsStore";
 
 
 export default function OwnerUploads() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const uploads = getOwnerUploads();
+  const successType = location.state?.uploadSuccess;
+  const closeSuccess = () => navigate(location.pathname, { replace: true });
 
   return (
     <div className="mx-auto w-full max-w-md lg:max-w-none font-sans">
@@ -60,7 +42,7 @@ export default function OwnerUploads() {
           </thead>
 
           <tbody>
-            {Uploads.map((row) => (
+            {uploads.map((row) => (
               <tr
                 key={row.id}
                 className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow"
@@ -87,6 +69,12 @@ export default function OwnerUploads() {
           </tbody>
         </table>
       </div>
+
+      <UploadSuccessPopup
+        open={Boolean(successType)}
+        type={successType}
+        onClose={closeSuccess}
+      />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import FilterMenu from "../../../Component/FilterMenu";
 import MusicCard from "../../../Component/MusicCard";
-import HeroImg from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import SearchBar from "../../../Component/SearchBar";
+import { mockTracks } from "../../../../src/mock/catalog";
 
 function AllMusic() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -140,45 +140,47 @@ function AllMusic() {
             </div>
           )}
 
-          <div className="flex flex-col gap-12 md:gap-20">
-          <div>
-            <div className="flex items-center justify-between mb-3 px-8">
-              <p className="text-xl font-semibold">Music</p>
-              <a href="">View All</a>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <MusicCard
-                  key={i}
-                  image={HeroImg}
-                  title="Lorem Ipsum Dolor"
-                  subtitle="Top Album"
-                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
-                />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-3 px-8">
-              <p className="text-xl font-semibold">Music</p>
-              <a href="">View All</a>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <MusicCard
-                  key={i}
-                  image={HeroImg}
-                  title="Lorem Ipsum Dolor"
-                  subtitle="Top Album"
-                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+	          <div className="flex flex-col gap-12 md:gap-20">
+	          <div>
+	            <div className="flex items-center justify-between mb-3 px-8">
+	              <p className="text-xl font-semibold">Trending music</p>
+	              <a href="">View All</a>
+	            </div>
+	
+	            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
+	              {mockTracks.slice(0, 6).map((track) => (
+	                <MusicCard
+	                  key={track.id}
+	                  image={track.cover}
+	                  title={track.title}
+	                  subtitle={track.artist}
+	                  track={track}
+	                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
+	                />
+	              ))}
+	            </div>
+	          </div>
+	
+	          <div>
+	            <div className="flex items-center justify-between mb-3 px-8">
+	              <p className="text-xl font-semibold">New releases</p>
+	              <a href="">View All</a>
+	            </div>
+	
+	            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
+	              {mockTracks.slice(4, 10).map((track) => (
+	                <MusicCard
+	                  key={track.id}
+	                  image={track.cover}
+	                  title={track.title}
+	                  subtitle={track.artist}
+	                  track={track}
+	                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
+	                />
+	              ))}
+	            </div>
+	          </div>
+	        </div>
       </div>
       </div>
     </>

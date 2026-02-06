@@ -6,12 +6,16 @@ function SmallNavBar({
   setCurrentPaert,
   CurrentPart,
 }) {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(() => {
+    const savedPage = Number(localStorage.getItem("CurrentPage")) || 0;
+    return typeof CurrentPart === "number" ? CurrentPart : savedPage;
+  });
   const tabRefs = useRef([]);
   const [style, setStyle] = useState({ width: 0, left: 0 });
+  const shownActive = typeof CurrentPart === "number" ? CurrentPart : active;
 
   useEffect(() => {
-    const currentTab = tabRefs.current[active];
+    const currentTab = tabRefs.current[shownActive];
     if (currentTab) {
       const { offsetWidth, offsetLeft } = currentTab;
       setStyle({
@@ -19,14 +23,7 @@ function SmallNavBar({
         left: offsetLeft - 8,
       });
     }
-  }, [active, tabs.length]);
-
-  useEffect(() => {
-    if (!CurrentPart) {
-      const savedPage = Number(localStorage.getItem("CurrentPage")) || 0;
-      setActive(savedPage);
-    }
-  }, []);
+  }, [shownActive, tabs.length]);
 
   return (
     <div className={`w-full ${classes}`}>
@@ -45,6 +42,7 @@ function SmallNavBar({
               ref={(el) => (tabRefs.current[index] = el)}
               onClick={() => {
                 setActive(index);
+                localStorage.setItem("CurrentPage", String(index));
                 if (setCurrentPaert) setCurrentPaert(index);
               }}
               className={`
@@ -52,7 +50,7 @@ function SmallNavBar({
                 flex items-center gap-2
                 transition-colors duration-300
                 ${
-                  active === index
+                  shownActive === index
                     ? "text-black"
                     : "text-gray-400 hover:text-black"
                 }

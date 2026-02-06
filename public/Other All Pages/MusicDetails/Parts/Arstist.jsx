@@ -8,14 +8,14 @@ import ReusableList from "../../../Component/ReusableList";
 import { Heart } from "../../../../assets/Icons/IconExporter";
 import Button from "../../../Component/Button";
 import { ShoppingCart } from "lucide-react";
+import { mockArtists, mockTracks } from "../../../../src/mock/catalog";
+import { useAudioPlayer } from "../../../../src/audio/AudioPlayerContext";
 
-const data = Array(18).fill({
-  title: "Lorem ipsum dolor sit",
-  by: "Lorem",
-  genres: "Lorem ipsum do",
-  mood: "Lorem ipsum do",
-  artists: "Lorem ipsum do",
-});
+const tracksData = mockTracks.map((track) => ({
+  ...track,
+  by: track.artist,
+  artists: track.artist,
+}));
 
 const columns = [
   { label: "Title", key: "title", subKey: "by", label2: "by", align: "left" },
@@ -29,8 +29,16 @@ function Arstist() {
   const [openDetailsPage, setopenDetailsPage] = useState(false);
   const [openPreview, setOpenPreview] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedArtist, setSelectedArtist] = useState(() => mockArtists[0] ?? null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const { currentTrack, isPlaying, toggle } = useAudioPlayer();
+
+  const tableData = (() => {
+    if (!selectedArtist?.name) return tracksData;
+    const filtered = tracksData.filter((t) => t.artist === selectedArtist.name);
+    return filtered.length ? filtered : tracksData;
+  })();
 
   const handleOpenPreview = (item) => {
     setSelectedItem(item);
@@ -154,18 +162,28 @@ function Arstist() {
                     </button>
 
                     <div className="relative">
-                      <img
-                        src={HeroImg}
-                        alt="Video Preview"
-                        className="w-full object-cover"
-                      />
-
-                      <button className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center">
-                          ▶
-                        </div>
-                      </button>
-                    </div>
+	                      <img
+	                        src={selectedItem?.cover || HeroImg}
+	                        alt="Video Preview"
+	                        className="w-full object-cover"
+	                      />
+	
+	                      <button
+	                        type="button"
+	                        className="absolute inset-0 flex items-center justify-center"
+	                        onClick={() => {
+	                          if (selectedItem?.audioSrc) toggle(selectedItem);
+	                        }}
+	                      >
+	                        <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center">
+	                          {selectedItem?.audioSrc &&
+	                          currentTrack?.audioSrc === selectedItem.audioSrc &&
+	                          isPlaying
+	                            ? "❚❚"
+	                            : "▶"}
+	                        </div>
+	                      </button>
+	                    </div>
 
                     <div className="p-4 text-white">
                       <div className="flex justify-between text-sm mb-2">
@@ -210,20 +228,20 @@ function Arstist() {
                   </svg>
                 </button>
 
-                <ReusableList
-                  title="Loram"
-                  data={data}
-                  columns={columns}
-                  renderCell={renderCell}
-                  lastColumnType="custom"
-                  emptyMessage="No Contant yet"
-                  emptyDescription="Browse through our large section of royalty-free music"
-                  exploreButtonText="Explore More"
-                  onRowClick={handleOpenPreview}
-                  onMenuClick={() => setMobileFiltersOpen(true)}
-                />
-              </div>
-            </div>
+		                <ReusableList
+		                  title={selectedArtist?.name || "Tracks"}
+		                  data={tableData}
+		                  columns={columns}
+		                  renderCell={renderCell}
+		                  lastColumnType="custom"
+		                  emptyMessage="No tracks yet"
+		                  emptyDescription="Browse through our curated music library"
+		                  exploreButtonText="Explore More"
+		                  onRowClick={handleOpenPreview}
+		                  onMenuClick={() => setMobileFiltersOpen(true)}
+		                />
+	              </div>
+	            </div>
           ) : (
             <>
               <div className="flex items-center justify-between gap-3 mb-4 md:mb-6">
@@ -314,18 +332,27 @@ function Arstist() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <div key={i} onClick={() => setopenDetailsPage(true)}>
-                    <MusicCard
-                      image={HeroImg}
-                      title="Lorem Ipsum Dolor"
-                      subtitle="Top Album"
-                      classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
-                    />
-                  </div>
-                ))}
-              </div>
+	              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
+	                {Array.from({ length: 12 }).map((_, i) => {
+	                  const artist = mockArtists[i % mockArtists.length];
+	                  return (
+	                  <div
+	                    key={`${artist.id}-${i}`}
+	                    onClick={() => {
+	                      setSelectedArtist(artist);
+	                      setopenDetailsPage(true);
+	                    }}
+	                  >
+	                    <MusicCard
+	                      image={artist.avatar}
+	                      title={artist.name}
+	                      subtitle={`${artist.followers.toLocaleString()} followers`}
+	                      classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
+	                    />
+	                  </div>
+	                );
+	                })}
+	              </div>
             </>
           )}
         </div>
