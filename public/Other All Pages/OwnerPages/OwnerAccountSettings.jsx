@@ -208,7 +208,7 @@ export default function OwnerAccountSettings() {
             </p>
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <label className="inline-flex cursor-pointer items-center justify-center rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+              <label className="inline-flex min-w-40 max-w-xl cursor-pointer items-center justify-center rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white hover:opacity-95">
                 Upload
                 <input
                   type="file"
