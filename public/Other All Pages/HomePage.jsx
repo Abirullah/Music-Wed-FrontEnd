@@ -96,7 +96,7 @@ export default function HomePage() {
           className="md:min-h-[90vh] min-h-[60vh] bg-cover bg-center flex flex-col justify-center items-center px-4"
           style={{ backgroundImage: `url(${HeroImg})` }}
         >
-          <div className="flex flex-col mt-10 md:mt-0 gap-2 mx-auto mb-20">
+          <div className="flex flex-col mt-15 md:mt-0 gap-2 mx-auto mb-20">
              <h1
             className="
               text-white font-bold text-center
