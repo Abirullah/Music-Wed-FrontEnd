@@ -33,7 +33,7 @@ function App() {
     }
   }, []);
 
-  // Apply a global `desktop-mode` class to <body> based on localStorage so components can style differently
+  
   useEffect(() => {
     const applyDesktopClass = () => {
       const desktop = localStorage.getItem("desktopMode") === "true";
@@ -45,7 +45,7 @@ function App() {
 
     // Keep in sync across tabs/windows
     const handler = (e) => {
-      if (e.key === "desktopMode") applyDesktopClass();
+      if (e.key === "desktopMode") applyDesktopClass();// Apply a global `desktop-mode` class to <body> based on localStorage so components can style differently
     };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
