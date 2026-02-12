@@ -1,16 +1,11 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../../../Component/Button";
 import ReusableList from "../../../Component/ReusableList";
 import { Heart } from "../../../../assets/Icons/IconExporter";
 import { ShoppingCart } from "lucide-react";
-import { useState } from "react";
-
-const data = Array(18).fill({
-  title: "Lorem ipsum dolor sit",
-  by: "Lorem",
-  genres: "Lorem ipsum do",
-  mood: "Lorem ipsum do",
-  artists: "Lorem ipsum do",
-});
+import { fetchFavorites, removeFavorite } from "../../../../src/api/userLibrary";
+import { getCurrentUser } from "../../../../src/utils/session";
 
 const columns = [
   { label: "Title", key: "title", subKey: "by", label2: "by", align: "left" },
@@ -21,55 +16,91 @@ const columns = [
 ];
 
 export default function Faverouite() {
-  const [favouriteActive, setFavouriteActive] = useState(() =>
-    Array(data.length).fill(true),
-  );
+  const currentUser = useMemo(() => getCurrentUser(), []);
+  const navigate = useNavigate();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const toggleFavourite = (index) => {
-    setFavouriteActive((prev) => {
-      const next = [...prev];
-      next[index] = !next[index];
-      return next;
-    });
+  useEffect(() => {
+    const loadFavorites = async () => {
+      if (!currentUser?.id) {
+        setRows([]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+        const response = await fetchFavorites(currentUser.id);
+        setRows(
+          (response.items || []).map((item) => ({
+            id: item.id,
+            itemType: item.itemType,
+            title: item.title,
+            by: item.artist,
+            genres: item.genre,
+            mood: item.mood,
+            artists: item.artist,
+          })),
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFavorites();
+  }, [currentUser?.id]);
+
+  const removeFromFavorites = async (itemType, itemId) => {
+    if (!currentUser?.id) {
+      navigate("/user/login");
+      return;
+    }
+
+    try {
+      setError("");
+      await removeFavorite(currentUser.id, { itemType, itemId });
+      setRows((prev) =>
+        prev.filter((item) => !(item.id === itemId && item.itemType === itemType)),
+      );
+    } catch (err) {
+      setError(err.message || "Failed to update favourites");
+    }
   };
 
-  const renderCell = (key, item, index) => {
+  const renderCell = (key, item) => {
     if (key === "actions") {
-      const isActive = favouriteActive[index];
       return (
         <>
-          {/* Mobile actions */}
           <div className="flex items-center gap-3 md:hidden">
             <button
               type="button"
-              className={`hover:scale-105 transition-transform ${
-                isActive ? "text-black" : "text-gray-400"
-              }`}
+              className="hover:scale-105 transition-transform text-black"
               aria-label="Favourite"
-              onClick={() => toggleFavourite(index)}
+              onClick={() => removeFromFavorites(item.itemType, item.id)}
             >
-              <Heart active={isActive} />
+              <Heart active />
             </button>
             <button
               type="button"
               className="text-gray-700 hover:text-black hover:scale-105 transition-transform"
               aria-label="Add to cart"
+              onClick={() => navigate(`/purchase/${item.itemType}/${item.id}`)}
             >
               <ShoppingCart className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Desktop actions */}
           <div className="hidden md:flex gap-2 items-center justify-around">
             <button
               type="button"
               aria-label="Favourite"
-              className={`hover:scale-105 transition-transform ${
-                isActive ? "text-black" : "text-gray-400"
-              }`}
-              onClick={() => toggleFavourite(index)}
+              className="hover:scale-105 transition-transform text-black"
+              onClick={() => removeFromFavorites(item.itemType, item.id)}
             >
-              <Heart active={isActive} />
+              <Heart active />
             </button>
             <Button
               text="Purchase"
@@ -77,6 +108,7 @@ export default function Faverouite() {
               textColor="text-yellow-600"
               textSize="text-lg font-bold"
               rounded="rounded-full border-1 border-yellow-500"
+              onClick={() => navigate(`/purchase/${item.itemType}/${item.id}`)}
             />
           </div>
         </>
@@ -88,15 +120,14 @@ export default function Faverouite() {
   return (
     <ReusableList
       title="List of Favourite"
-      data={data}
+      data={loading ? [] : rows}
       columns={columns}
       renderCell={renderCell}
       lastColumnType="custom"
-      emptyMessage="No Favourite yet"
+      emptyMessage={loading ? "Loading favourites..." : error || "No Favourite yet"}
       emptyDescription="Browse through our large section of royalty-free music"
       exploreButtonText="Explore More"
-      onExploreClick={() => console.log("Explore More")}
+      onExploreClick={() => navigate("/Music")}
     />
   );
 }
-    

@@ -15,6 +15,7 @@ import UserNewPassword from "../public/Login & signup pages/user/NewPassword";
 import UserSuccess from "../public/Login & signup pages/user/Success";
 
 import Owner from "../public/Other All Pages/OwnerPages/Owner";
+import PurchaseCheckout from "../public/Other All Pages/Purchase/PurchaseCheckout";
 import OwnerLogin from "../public/Login & signup pages/owner/Login";
 import OwnerSignup from "../public/Login & signup pages/owner/Signup";
 import OwnerForgotPassword from "../public/Login & signup pages/owner/ForgotPassword";
@@ -24,16 +25,6 @@ import OwnerSuccess from "../public/Login & signup pages/owner/Success";
 
 
 function App() {
-  useEffect(() => {
-    if (!localStorage.getItem("users")) {
-      localStorage.setItem("users", JSON.stringify([]));
-    }
-    if (!localStorage.getItem("owners")) {
-      localStorage.setItem("owners", JSON.stringify([]));
-    }
-  }, []);
-
-  
   useEffect(() => {
     const applyDesktopClass = () => {
       const desktop = localStorage.getItem("desktopMode") === "true";
@@ -57,6 +48,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/Profile" element={<Purchases />} />
         <Route path="/Music" element={<MusicMainPage />} />
+        <Route path="/purchase/:itemType/:itemId" element={<PurchaseCheckout />} />
 
         {/* User Auth Routes */}
         <Route path="/user/login" element={<UserLogin />} />

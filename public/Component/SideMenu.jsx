@@ -2,6 +2,7 @@ import { useState } from "react";
 import Img from "../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import Button from "./Button";
 import { Link } from "react-router-dom";
+import { clearSession, getCurrentUser } from "../../src/utils/session";
 
 export function SideMenu({ openProfileMenu, setCurrentPart }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
@@ -11,17 +12,11 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
   }
 
   function Logout() {
-    localStorage.removeItem("currentUser");
+    clearSession();
     window.location.href = "/";
   }
 
-  const currentUser = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("currentUser"));
-    } catch {
-      return null;
-    }
-  })();
+  const currentUser = getCurrentUser();
 
   const profileName = currentUser?.fullName || "Micheal Jordean";
 

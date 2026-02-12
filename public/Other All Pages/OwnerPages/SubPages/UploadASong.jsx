@@ -4,7 +4,8 @@ import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
 import StepperPills from "../Parts/StepperPills";
 import MobileBottomSheet from "../Parts/MobileBottomSheet";
-import { prependOwnerUpload } from "../../../../src/storage/ownerUploadsStore";
+import { uploadSong } from "../../../../src/api/owner";
+import { getCurrentUser } from "../../../../src/utils/session";
 
 const initialFormState = {
   musicCategory: "Song",
@@ -52,6 +53,8 @@ export default function UploadASong() {
   const navigate = useNavigate();
   const [active, setActive] = useState(1);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("uploadedSong");
@@ -163,42 +166,44 @@ export default function UploadASong() {
     localStorage.setItem("uploadCompleted", JSON.stringify(newCompleted));
   };
 
-  const handleFinalSubmit = () => {
-    console.log("FINAL SONG DATA:", formData);
+  const handleFinalSubmit = async () => {
+    const currentUser = getCurrentUser();
+    if (!currentUser?.id) {
+      setSubmitError("Please login as owner to upload.");
+      return;
+    }
 
-    const affiliateLink =
-      [
-        formData.affiliateLink,
-        formData.spotify,
-        formData.youtube,
-        formData.gaana,
-        formData.amazon,
-        formData.wynk,
-        formData.apple,
-        formData.other,
-        formData.musicLink,
-      ]
-        .map((v) => (v || "").trim())
-        .find(Boolean) || "";
+    try {
+      setSubmitting(true);
+      setSubmitError("");
 
-    prependOwnerUpload({
-      type: "Music",
-      song: formData.musicName || "Untitled",
-      affiliateLink,
-      artistName: formData.artistName || "",
-      copyrightOwner: formData.copyright || "",
-    });
+      const payload = {
+        ...formData,
+        price:
+          formData.price ||
+          formData.priceSixMonths ||
+          formData.priceYear ||
+          0,
+      };
 
-    localStorage.removeItem("uploadedSong");
-    localStorage.removeItem("uploadCompleted");
+      await uploadSong(currentUser.id, payload);
 
-    navigate("/owner/upload", {
-      state: { uploadSuccess: "music" },
-    });
+      localStorage.removeItem("uploadedSong");
+      localStorage.removeItem("uploadCompleted");
+
+      navigate("/owner/upload", {
+        state: { uploadSuccess: "music" },
+      });
+    } catch (error) {
+      setSubmitError(error.message || "Song upload failed");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleSubmitStep = (step) => (e) => {
+  const handleSubmitStep = (step) => async (e) => {
     e.preventDefault();
+    if (submitting) return;
     if (!validateStep(step)) return;
 
     saveAndComplete(step);
@@ -207,7 +212,7 @@ export default function UploadASong() {
     if (step === 2) setActive(3);
     if (step === 3) setActive(4);
     if (step === 4) setActive(5);
-    if (step === 5) handleFinalSubmit();
+    if (step === 5) await handleFinalSubmit();
   };
 
   return (
@@ -242,6 +247,11 @@ export default function UploadASong() {
         isAllowed={isAllowed}
         onStepClick={handleClick}
       />
+      {submitError ? (
+        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          {submitError}
+        </p>
+      ) : null}
 
       <div className="flex flex-col lg:flex-row w-full gap-6 lg:gap-10">
         {/* Desktop steps */}
@@ -336,6 +346,7 @@ export default function UploadASong() {
               onChange={handleChange}
               onSubmit={handleSubmitStep(5)}
               goBack={() => setActive(4)}
+              isSubmitting={submitting}
             />
           )}
         </div>
@@ -725,27 +736,9 @@ function Purpose({
                 ) : null}
               </>
             ) : (
-              <>
-               <p className="text-sm text-gray-600">
-                  Public places, {data.pricingUse || "Background"} —{" "}
-                  {data.pricingPlace || "Select a category"}
-                </p>
-
-                <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-4">
-                  <p className="text-sm font-semibold text-gray-700">List 1</p>
-
-                  <Input
-                    id="ArtificalUrl"
-                    label="ArticificalUrl"
-                    placeholder="Url"
-                    value={data.seatingCapacity}
-                    onChange={onChange}
-                    error={errors.seatingCapacity}
-                  />
-                  
-                  
-                  </div>
-              </>
+              <p className="text-sm text-gray-600">
+                Individual license selected. Click next to set pricing.
+              </p>
             )}
           </div>
         )}
@@ -760,16 +753,32 @@ function Purpose({
                 </p>
 
                 <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-4">
-
                   <Input
-                    id="ArtificalUrl"
-                    label="ArticificalUrl"
-                    placeholder="Url"
+                    id="seatingCapacity"
+                    label="Seating capacity"
+                    placeholder="Enter seating capacity"
                     value={data.seatingCapacity}
                     onChange={onChange}
                     error={errors.seatingCapacity}
                   />
 
+                  <Input
+                    id="priceYear"
+                    label="Price (Year)"
+                    placeholder="Enter yearly price"
+                    value={data.priceYear}
+                    onChange={onChange}
+                    error={errors.priceYear}
+                  />
+
+                  <Input
+                    id="priceSixMonths"
+                    label="Price (6 Months)"
+                    placeholder="Enter 6-month price"
+                    value={data.priceSixMonths}
+                    onChange={onChange}
+                    error={errors.priceSixMonths}
+                  />
                 </div>
               </>
             ) : (
@@ -844,7 +853,7 @@ function Price({ data, onChange, onSubmit, goBack }) {
   );
 }
 
-function AgreementStep({ data, onChange, onSubmit, errors, goBack }) {
+function AgreementStep({ data, onChange, onSubmit, errors, goBack, isSubmitting = false }) {
   return (
     <form onSubmit={onSubmit} className="w-full">
       <Card
@@ -861,8 +870,9 @@ function AgreementStep({ data, onChange, onSubmit, errors, goBack }) {
             <button
               className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-900 transition"
               type="submit"
+              disabled={isSubmitting}
             >
-              Submit
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
         }

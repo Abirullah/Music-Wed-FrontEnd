@@ -1,25 +1,35 @@
 import { useState } from "react";
 
-const filters = [
+const defaultFilters = [
   {
     name: "Genre",
+    key: "genre",
     options: ["Action", "Adventure", "Aerobics", "Comedy"],
   },
   {
     name: "Mood",
+    key: "mood",
     options: ["Happy", "Sad", "Energetic", "Chill"],
   },
   {
     name: "Artists",
+    key: "artist",
     options: ["Artist 1", "Artist 2", "Artist 3"],
   },
   {
     name: "Language",
+    key: "language",
     options: ["English", "Spanish", "French"],
   },
 ];
 
-export default function FilterMenu({ variant = "sidebar", showTitle = true }) {
+export default function FilterMenu({
+  variant = "sidebar",
+  showTitle = true,
+  filters = defaultFilters,
+  selectedFilters = {},
+  onToggleFilter,
+}) {
   const [openSections, setOpenSections] = useState({});
 
   const toggleSection = (name) => {
@@ -27,6 +37,11 @@ export default function FilterMenu({ variant = "sidebar", showTitle = true }) {
       ...prev,
       [name]: !prev[name],
     }));
+  };
+
+  const handleOptionToggle = (sectionKey, option) => {
+    if (!onToggleFilter) return;
+    onToggleFilter(sectionKey, option);
   };
 
   return (
@@ -39,7 +54,11 @@ export default function FilterMenu({ variant = "sidebar", showTitle = true }) {
     >
       {showTitle && <h2 className="text-xl font-semibold mb-4">Filter</h2>}
 
-      {filters.map((section) => (
+      {filters.map((section) => {
+        const sectionKey = section.key || section.name.toLowerCase();
+        const selectedValues = selectedFilters[sectionKey] || [];
+
+        return (
         <div key={section.name} className="border-b border-gray-400 py-3">
           <button
             type="button"
@@ -59,14 +78,19 @@ export default function FilterMenu({ variant = "sidebar", showTitle = true }) {
                   key={option}
                   className="flex items-center gap-2 text-sm text-gray-600"
                 >
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    checked={selectedValues.includes(option)}
+                    onChange={() => handleOptionToggle(sectionKey, option)}
+                  />
                   {option}
                 </label>
               ))}
             </div>
           )}
         </div>
-      ))}
+      );
+      })}
     </aside>
   );
 }

@@ -1,25 +1,61 @@
+import { useEffect, useMemo, useState } from "react";
 import SearchBar from "./Parts/SearchBar";
 import { useLocation, useNavigate } from "react-router-dom";
 import UploadSuccessPopup from "./Parts/UploadSuccessPopup";
-import { getOwnerUploads } from "../../../src/storage/ownerUploadsStore";
+import { fetchOwnerUploads } from "../../../src/api/owner";
+import { getCurrentUser } from "../../../src/utils/session";
 
 
 export default function OwnerUploads() {
   const location = useLocation();
   const navigate = useNavigate();
+  const currentUser = useMemo(() => getCurrentUser(), []);
+  const [search, setSearch] = useState("");
+  const [uploads, setUploads] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const uploads = getOwnerUploads();
   const successType = location.state?.uploadSuccess;
   const closeSuccess = () => navigate(location.pathname, { replace: true });
+
+  useEffect(() => {
+    const loadUploads = async () => {
+      if (!currentUser?.id) {
+        setError("Please login as owner.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+        const response = await fetchOwnerUploads(currentUser.id, { search });
+        setUploads(response.data || []);
+      } catch (err) {
+        setError(err.message || "Failed to load uploads");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUploads();
+  }, [currentUser?.id, search]);
 
   return (
     <div className="mx-auto w-full max-w-md lg:max-w-none font-sans">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">Upload list</h1>
         <div className="relative w-full md:w-1/3">
-          <SearchBar placeholder="Search" />
+          <SearchBar
+            placeholder="Search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            onSubmit={(value) => setSearch(value)}
+          />
         </div>
       </div>
+      {loading ? <p className="text-sm text-gray-500 mb-3">Loading uploads...</p> : null}
+      {error ? <p className="text-sm text-red-500 mb-3">{error}</p> : null}
 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-separate border-spacing-y-3">

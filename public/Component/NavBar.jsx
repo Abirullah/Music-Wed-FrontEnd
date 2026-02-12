@@ -2,6 +2,7 @@ import { useState } from "react";
 import HerImg from "../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import { SideMenu } from "./SideMenu";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../../src/utils/session";
 
 export default function NavBar({
   classes = "",
@@ -11,20 +12,13 @@ export default function NavBar({
   bgImg,
 }) {
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
-  const [currentUser] = useState(() => {
-    try {
-      const raw = localStorage.getItem("currentUser");
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [currentUser] = useState(() => getCurrentUser());
 
   const isAuthenticated = Boolean(currentUser);
   const userProfile = currentUser
     ? {
         name: currentUser.fullName,
-        profilePic: HerImg,
+        profilePic: currentUser.profilePicture || HerImg,
         Role: currentUser.Role,
       }
     : {

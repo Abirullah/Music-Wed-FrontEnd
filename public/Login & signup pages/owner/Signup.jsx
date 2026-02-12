@@ -4,17 +4,20 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import bgImg from "../../../assets/Images/image 34.png";
 import { FcGoogle } from "react-icons/fc";
+import { registerUser } from "../../../src/api/auth";
+import { setSession } from "../../../src/utils/session";
 
 export default function UserSignup() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-      confirmPassword: "",
+    confirmPassword: "",
     Role: "owner",
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,7 +26,7 @@ export default function UserSignup() {
     setError("");
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
 
     if (
@@ -46,26 +49,25 @@ export default function UserSignup() {
       return;
       }
 
-      const owners = JSON.parse(localStorage.getItem("owners")) || [];
+    try {
+      setLoading(true);
+      setError("");
 
-        const userExists = owners.find((u) => u.email === formData.email);
-        if (userExists) {
-          setError("User already exists");
-          return;
-        }
+      const response = await registerUser({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.Role,
+      });
 
-        owners.push({
-          id: Date.now(),
-          fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-          Role: formData.Role,
-        });
-
-        localStorage.setItem("owners", JSON.stringify(owners));
-
-    console.log("Owner Signup:", formData);
-    navigate("/owner/login");
+      setSession({ token: response.token, user: response.user });
+      localStorage.setItem("desktopMode", "true");
+      navigate("/owner/dashboard");
+    } catch (err) {
+      setError(err.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -172,7 +174,7 @@ export default function UserSignup() {
             <Button
               type="submit"
               className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-              text="Create Account"
+              text={loading ? "Creating..." : "Create Account"}
             />
           </form>
 

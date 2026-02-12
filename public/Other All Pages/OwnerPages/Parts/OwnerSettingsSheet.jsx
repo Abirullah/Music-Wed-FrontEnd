@@ -2,36 +2,22 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileBottomSheet from "./MobileBottomSheet";
 import Img from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6 - Copy.jpg";
-
-const safeJsonParse = (value, fallback) => {
-  try {
-    return JSON.parse(value ?? "");
-  } catch {
-    return fallback;
-  }
-};
+import { clearSession, getCurrentUser } from "../../../../src/utils/session";
 
 export default function OwnerSettingsSheet({ open = false, onClose = () => {} }) {
   const navigate = useNavigate();
 
   const profile = useMemo(() => {
-    const currentUser = safeJsonParse(localStorage.getItem("currentUser"), null);
-    const owners = safeJsonParse(localStorage.getItem("owners"), []);
-    const owner =
-      owners.find((o) => o?.id === currentUser?.id) ||
-      owners.find((o) => o?.email === currentUser?.email) ||
-      null;
-
-    const fullName = owner?.fullName || currentUser?.fullName || "Owner";
-    const email = owner?.email || currentUser?.email || "";
-    const profilePic = owner?.profilePic || currentUser?.profilePic || null;
+    const currentUser = getCurrentUser();
+    const fullName = currentUser?.fullName || "Owner";
+    const email = currentUser?.email || "";
+    const profilePic = currentUser?.profilePicture || null;
 
     return { fullName, email, profilePic };
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("desktopMode");
+    clearSession();
     window.location.href = "/";
   };
 
@@ -76,4 +62,3 @@ export default function OwnerSettingsSheet({ open = false, onClose = () => {} })
     </MobileBottomSheet>
   );
 }
-

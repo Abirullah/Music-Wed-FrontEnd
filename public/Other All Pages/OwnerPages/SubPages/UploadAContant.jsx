@@ -4,7 +4,8 @@ import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
 import StepperPills from "../Parts/StepperPills";
 import MobileBottomSheet from "../Parts/MobileBottomSheet";
-import { prependOwnerUpload } from "../../../../src/storage/ownerUploadsStore";
+import { uploadContent } from "../../../../src/api/owner";
+import { getCurrentUser } from "../../../../src/utils/session";
 
 const initialFormState = {
   uploadPermission: "",
@@ -45,6 +46,8 @@ export default function UploadAContent() {
   const navigate = useNavigate();
   const [active, setActive] = useState(1);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("uploadContent");
     return saved ? { ...initialFormState, ...JSON.parse(saved) } : initialFormState;
@@ -138,54 +141,47 @@ export default function UploadAContent() {
   };
 
   const handleSubmitStep = (step) => {
-    return (e) => {
+    return async (e) => {
       e.preventDefault();
+      if (submitting) return;
       if (!validateStep(step)) {
-        console.log(`Step ${step} validation failed:`, errors);
         return;
       }
-      
-      console.log(`STEP ${step} DATA:`, formData);
+
       saveAndComplete(step);
-      
+
       if (step < 5) {
         setActive(step + 1);
       } else {
-        handleFinalSubmit();
+        await handleFinalSubmit();
       }
     };
   };
 
-  const handleFinalSubmit = () => {
-    console.log("FINAL DATA:", formData);
+  const handleFinalSubmit = async () => {
+    const currentUser = getCurrentUser();
+    if (!currentUser?.id) {
+      setSubmitError("Please login as owner to upload.");
+      return;
+    }
 
-    const affiliateLink =
-      [
-        formData.youtube,
-        formData.instagram,
-        formData.facebook,
-        formData.twitter,
-        formData.linkedin,
-        formData.people,
-        formData.other,
-      ]
-        .map((v) => (v || "").trim())
-        .find(Boolean) || "";
+    try {
+      setSubmitting(true);
+      setSubmitError("");
 
-    prependOwnerUpload({
-      type: "Content",
-      song: formData.contentName || "Untitled",
-      affiliateLink,
-      artistName: formData.artistName || "",
-      copyrightOwner: formData.copyright || "",
-    });
+      await uploadContent(currentUser.id, formData);
 
-    localStorage.removeItem("uploadContent");
-    localStorage.removeItem("uploadContentCompleted");
+      localStorage.removeItem("uploadContent");
+      localStorage.removeItem("uploadContentCompleted");
 
-    navigate("/owner/upload", {
-      state: { uploadSuccess: "content" },
-    });
+      navigate("/owner/upload", {
+        state: { uploadSuccess: "content" },
+      });
+    } catch (error) {
+      setSubmitError(error.message || "Content upload failed");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const goBack = () => {
@@ -226,6 +222,11 @@ export default function UploadAContent() {
         isAllowed={isAllowed}
         onStepClick={handleClick}
       />
+      {submitError ? (
+        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          {submitError}
+        </p>
+      ) : null}
 
       <div className="flex flex-col lg:flex-row w-full gap-6 lg:gap-10">
         {/* Desktop steps */}
@@ -321,6 +322,7 @@ export default function UploadAContent() {
               onSubmit={handleSubmitStep(5)}
               errors={errors}
               goBack={goBack}
+              isSubmitting={submitting}
             />
           )}
         </div>
@@ -736,7 +738,7 @@ function StepFour({ data, onRadioChange, onSubmit, errors, goBack }) {
   );
 }
 
-function StepFive({ data, onChange, onSubmit, errors, goBack }) {
+function StepFive({ data, onChange, onSubmit, errors, goBack, isSubmitting = false }) {
   return (
     <form onSubmit={onSubmit} className="w-full">
       <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-5 shadow-sm">
@@ -782,8 +784,9 @@ function StepFive({ data, onChange, onSubmit, errors, goBack }) {
           <button
             className="w-full bg-black text-white py-3 rounded-xl font-medium hover:bg-gray-900 transition"
             type="submit"
+            disabled={isSubmitting}
           >
-            Submit
+            {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>

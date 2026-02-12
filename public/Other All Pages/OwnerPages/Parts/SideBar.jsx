@@ -7,6 +7,7 @@ import {
   XCircleIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import { clearSession } from "../../../../src/utils/session";
 
 
 const menuItems = [
@@ -21,8 +22,7 @@ const menuItems = [
 
 export default function Sidebar() {
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("desktopMode");
+    clearSession();
     window.location.href = "/";
   };
 

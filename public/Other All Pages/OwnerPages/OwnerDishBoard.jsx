@@ -1,46 +1,52 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./Parts/SearchBar";
 import Img from "../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { getOwnerUploads } from "../../../src/storage/ownerUploadsStore";
+import { fetchOwnerDashboard } from "../../../src/api/owner";
+import { getCurrentUser } from "../../../src/utils/session";
 
 
 
 
 export default function DashboardHome() {
+  const navigate = useNavigate();
+  const currentUser = useMemo(() => getCurrentUser(), []);
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-	  const navigate = useNavigate()
+  useEffect(() => {
+    const loadDashboard = async () => {
+      if (!currentUser?.id) {
+        setError("Please login as owner.");
+        setLoading(false);
+        return;
+      }
 
-	    const safeJsonParse = (value, fallback) => {
-	      try {
-	        return JSON.parse(value ?? "");
-	      } catch {
-	        return fallback;
-	      }
-	    };
+      try {
+        setLoading(true);
+        const response = await fetchOwnerDashboard(currentUser.id);
+        setDashboard(response);
+      } catch (err) {
+        setError(err.message || "Failed to load dashboard");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-	    const currentUser = safeJsonParse(localStorage.getItem("currentUser"), null);
-	    const ownerName = currentUser?.fullName || "Owner";
-	    const ownerAvatar = currentUser?.profilePic || Img;
+    loadDashboard();
+  }, [currentUser?.id]);
 
-	    const ownerUploads = getOwnerUploads();
-	    const musicUploaded = ownerUploads.filter(
-	      (u) => String(u?.type || "").toLowerCase() === "music",
-	    ).length;
-	    const contentUploaded = ownerUploads.filter(
-	      (u) => String(u?.type || "").toLowerCase() === "content",
-	    ).length;
+  const ownerName = dashboard?.owner?.name || currentUser?.fullName || "Owner";
+  const ownerAvatar = dashboard?.owner?.profilePicture || currentUser?.profilePicture || Img;
 
-	    const recentUploads = ownerUploads.slice(0, 8).map((u) => ({
-	      id: u.id,
-	      type: String(u?.type || "").toLowerCase() === "music" ? "music" : "video",
-	      title: u.song || "Untitled",
-	      subtitle: u.artistName || u.type || "",
-	    }));
+  const musicUploaded = dashboard?.stats?.musicUploaded || 0;
+  const contentUploaded = dashboard?.stats?.contentUploaded || 0;
+  const recentUploads = dashboard?.recentUploads || [];
+  const latestUpload = recentUploads[0];
 
-	    const latestUpload = ownerUploads[0];
-
-	  return (
+  return (
 	    <div className="mx-auto w-full max-w-md lg:max-w-none flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-8 lg:items-start">
       <div className="space-y-6 lg:space-y-8 w-full lg:w-[65%]">
         <div className="hidden lg:block">
@@ -49,8 +55,10 @@ export default function DashboardHome() {
 
         {/* Search */}
         <div className="hidden lg:block">
-          <SearchBar />
+          <SearchBar placeholder="Search uploads" />
         </div>
+        {loading ? <p className="text-sm text-gray-500">Loading dashboard...</p> : null}
+        {error ? <p className="text-sm text-red-500">{error}</p> : null}
 
         {/* Mobile quick card */}
 	        <button
@@ -77,7 +85,7 @@ export default function DashboardHome() {
 
 	            <div>
 	              <p className="text-sm font-semibold text-black">
-	                {latestUpload?.song || "Upload list"}
+	                {latestUpload?.title || "Upload list"}
 	              </p>
 	              <p className="text-xs text-gray-400">
 	                Tap to view all your uploads

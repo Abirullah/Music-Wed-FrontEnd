@@ -4,17 +4,20 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import bgImg from "../../../assets/Images/image 34.png";
 import { FcGoogle } from "react-icons/fc";
+import { registerUser } from "../../../src/api/auth";
+import { setSession } from "../../../src/utils/session";
 
 export default function UserSignup() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-      confirmPassword: "",
-    Role : "user"
+    confirmPassword: "",
+    Role: "user",
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,48 +26,45 @@ export default function UserSignup() {
     setError("");
   };
 
-  const handleSignup = (e) => {
-  e.preventDefault();
+  const handleSignup = async (e) => {
+    e.preventDefault();
 
-  const { fullName, email, password, confirmPassword , Role = "user" } = formData;
+    const { fullName, email, password, confirmPassword, Role = "user" } = formData;
 
-  if (!fullName || !email || !password || !confirmPassword) {
-    setError("Please fill in all fields");
-    return;
-  }
+    if (!fullName || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields");
+      return;
+    }
 
-  if (password !== confirmPassword) {
-    setError("Passwords do not match");
-    return;
-  }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
-  if (password.length < 8) {
-    setError("Password must be at least 8 characters");
-    return;
-  }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
 
-  const users = JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      setLoading(true);
+      setError("");
 
-  
-  const userExists = users.find((u) => u.email === email);
-  if (userExists) {
-    setError("User already exists");
-    return;
-  }
+      const response = await registerUser({
+        fullName,
+        email,
+        password,
+        role: Role,
+      });
 
-  
-  users.push({
-    id: Date.now(),
-    fullName,
-    email,
-    password,
-    Role,
-  });
-
-  localStorage.setItem("users", JSON.stringify(users));
-
-  navigate("/user/login");
-};
+      setSession({ token: response.token, user: response.user });
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex font-sans">
@@ -170,7 +170,7 @@ export default function UserSignup() {
             <Button
               type="submit"
               className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-              text="Create Account"
+              text={loading ? "Creating..." : "Create Account"}
             />
           </form>
 

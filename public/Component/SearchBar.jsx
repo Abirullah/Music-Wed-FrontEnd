@@ -1,4 +1,29 @@
-export default function SearchBar({ classess , placeholder , ButtonInfo }) {
+import { useState } from "react";
+
+export default function SearchBar({
+  classess,
+  placeholder,
+  ButtonInfo,
+  value,
+  onChange,
+  onSubmit,
+}) {
+  const [internalValue, setInternalValue] = useState("");
+  const isControlled = value !== undefined;
+  const currentValue = isControlled ? value : internalValue;
+
+  const handleChange = (event) => {
+    if (!isControlled) {
+      setInternalValue(event.target.value);
+    }
+    onChange?.(event);
+  };
+
+  const submitSearch = () => {
+    if (!onSubmit) return;
+    onSubmit(currentValue);
+  };
+
   return (
     <div
       className={`flex items-center gap-3 border-b border-gray-400/60 ${classess} px-3`}
@@ -6,11 +31,20 @@ export default function SearchBar({ classess , placeholder , ButtonInfo }) {
       <input
         type="text"
         placeholder={placeholder}
+        value={currentValue}
+        onChange={handleChange}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            submitSearch();
+          }
+        }}
         className="w-full h-full text-lg bg-transparent outline-none placeholder-gray-400 text-gray-700"
       />
 
       <button
-        type="submit"
+        type="button"
+        onClick={submitSearch}
         className={`flex items-center justify-center  ${ButtonInfo ? ButtonInfo : "w-16 h-15"} rounded-full bg-yellow-400 hover:bg-yellow-500 transition-all duration-300 shadow-md`}
       >
         <svg

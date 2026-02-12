@@ -17,9 +17,27 @@ export default function ReusableList({
   onRowClick,
   searchPlaceholder = "Search",
   onMenuClick,
+  searchValue,
+  onSearchChange,
+  onSearchSubmit,
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [internalSearch, setInternalSearch] = useState("");
   const { currentTrack, isPlaying, toggle } = useAudioPlayer();
+
+  const controlledSearch = searchValue !== undefined;
+  const activeSearchValue = controlledSearch ? searchValue : internalSearch;
+
+  const handleSearchChange = (event) => {
+    if (!controlledSearch) {
+      setInternalSearch(event.target.value);
+    }
+    onSearchChange?.(event);
+  };
+
+  const handleSearchSubmit = (value) => {
+    onSearchSubmit?.(value ?? activeSearchValue);
+  };
 
   const isItemPlaying = (item) =>
     Boolean(item?.audioSrc && currentTrack?.audioSrc === item.audioSrc && isPlaying);
@@ -50,6 +68,9 @@ export default function ReusableList({
             classess="w-[28rem] lg:w-[32rem] rounded-full border border-gray-300 shadow-sm bg-white/80 h-12"
             placeholder={searchPlaceholder}
             ButtonInfo="w-14 h-full"
+            value={activeSearchValue}
+            onChange={handleSearchChange}
+            onSubmit={handleSearchSubmit}
           />
         </div>
 
@@ -125,6 +146,9 @@ export default function ReusableList({
             classess="w-full rounded-full border border-gray-300 shadow-sm bg-white/80 h-11"
             placeholder={searchPlaceholder}
             ButtonInfo="w-12 h-full"
+            value={activeSearchValue}
+            onChange={handleSearchChange}
+            onSubmit={handleSearchSubmit}
           />
         </div>
       )}

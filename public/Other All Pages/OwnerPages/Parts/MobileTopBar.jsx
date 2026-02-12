@@ -2,26 +2,13 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import Img from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6 - Copy.jpg";
-
-const safeJsonParse = (value, fallback) => {
-  try {
-    return JSON.parse(value ?? "");
-  } catch {
-    return fallback;
-  }
-};
+import { getCurrentUser } from "../../../../src/utils/session";
 
 export default function MobileTopBar({ onSettingsClick = () => {} }) {
   const navigate = useNavigate();
   const avatarSrc = useMemo(() => {
-    const currentUser = safeJsonParse(localStorage.getItem("currentUser"), null);
-    const owners = safeJsonParse(localStorage.getItem("owners"), []);
-    const owner =
-      owners.find((o) => o?.id === currentUser?.id) ||
-      owners.find((o) => o?.email === currentUser?.email) ||
-      null;
-
-    return owner?.profilePic || currentUser?.profilePic || Img;
+    const currentUser = getCurrentUser();
+    return currentUser?.profilePicture || Img;
   }, []);
 
   return (

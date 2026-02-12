@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import HeroImg from "../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import NavImg from "../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6 - Copy.jpg";
@@ -12,7 +12,7 @@ import SmallNavBar from "../Component/SmallNavBar";
 import CompanyAndOurContant from "../Parts/CompanyAndOur contant";
 import PeopleSaysAboutUs from "../Parts/PeopleSaysAboutUs";
 import Footer from "../Component/Footer";
-import { mockTracks } from "../../src/mock/catalog";
+import { useCatalog } from "../../src/hooks/useCatalog";
 
 import {
   creatorIcon,
@@ -41,8 +41,10 @@ const HERO_SLIDES = [
 ];
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [heroScrolled, setHeroScrolled] = useState(false);
   const [heroSlide, setHeroSlide] = useState(0);
+  const [heroSearch, setHeroSearch] = useState("");
   const [isMdUp, setIsMdUp] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(min-width: 768px)").matches;
@@ -76,6 +78,8 @@ export default function HomePage() {
   };
 
   const activeHero = isMdUp ? HERO_SLIDES[0] : HERO_SLIDES[heroSlide];
+  const { items: topMusic } = useCatalog({ type: "song" });
+  const featuredTracks = useMemo(() => topMusic.slice(0, 6), [topMusic]);
 
   return (
     <>
@@ -142,7 +146,9 @@ export default function HomePage() {
               classess="w-full h-19 rounded-full bg-white px-4"
               placeholder="Search"
               ButtonInfo="w-17 h-15 rounded-full"
-
+              value={heroSearch}
+              onChange={(event) => setHeroSearch(event.target.value)}
+              onSubmit={() => navigate("/Music")}
             />
           </div>
 
@@ -211,7 +217,7 @@ export default function HomePage() {
     max-w-6xl mx-auto
   "
 	>
-	  {mockTracks.slice(0, 6).map((track, i) => (
+	  {featuredTracks.map((track, i) => (
 	    <div
 	      key={track.id}
 	      className={i >= 4 ? "hidden md:block" : ""}
@@ -220,7 +226,13 @@ export default function HomePage() {
 	        image={track.cover}
 	        title={track.title}
 	        subtitle={track.artist}
-	        track={track}
+	        track={{
+	          id: track.id,
+	          title: track.title,
+	          artist: track.artist,
+	          cover: track.cover,
+	          audioSrc: track.previewUrl,
+	        }}
 	        classes="h-44 sm:h-52 rounded-xl"
 	      />
 	    </div>

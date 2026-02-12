@@ -1,12 +1,34 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import FilterMenu from "../../../Component/FilterMenu";
 import MusicCard from "../../../Component/MusicCard";
 import SearchBar from "../../../Component/SearchBar";
-import { mockTracks } from "../../../../src/mock/catalog";
+import { useCatalog } from "../../../../src/hooks/useCatalog";
+
+const buildFilterSections = (options = {}) => [
+  { name: "Genre", key: "genre", options: options.genre || [] },
+  { name: "Mood", key: "mood", options: options.mood || [] },
+  { name: "Artists", key: "artist", options: options.artist || [] },
+  { name: "Language", key: "language", options: options.language || [] },
+];
 
 function AllMusic() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  const {
+    items,
+    filterOptions,
+    selectedFilters,
+    toggleFilter,
+    search,
+    setSearch,
+    loading,
+    error,
+  } = useCatalog({ type: "all" });
+
+  const filters = useMemo(() => buildFilterSections(filterOptions), [filterOptions]);
+  const trending = useMemo(() => items.slice(0, 6), [items]);
+  const releases = useMemo(() => items.slice(6, 12), [items]);
 
   return (
     <>
@@ -18,9 +40,7 @@ function AllMusic() {
           />
           <div className="fixed inset-x-0 bottom-0 z-50 h-[70vh] bg-white rounded-t-3xl shadow-2xl overflow-hidden md:hidden">
             <div className="relative flex items-center justify-center px-5 py-4 border-b border-black/10">
-              <span className="text-base font-semibold text-gray-900">
-                Filters
-              </span>
+              <span className="text-base font-semibold text-gray-900">Filters</span>
               <button
                 type="button"
                 aria-label="Close filters"
@@ -35,35 +55,42 @@ function AllMusic() {
                   stroke="currentColor"
                   strokeWidth={2}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <FilterMenu variant="sheet" showTitle={false} />
+            <FilterMenu
+              variant="sheet"
+              showTitle={false}
+              filters={filters}
+              selectedFilters={selectedFilters}
+              onToggleFilter={toggleFilter}
+            />
           </div>
         </>
       )}
 
       <div className="flex flex-col md:flex-row gap-6 md:gap-10">
         <div className="hidden md:block md:w-[22%]">
-        <FilterMenu />
-      </div>
+          <FilterMenu
+            filters={filters}
+            selectedFilters={selectedFilters}
+            onToggleFilter={toggleFilter}
+          />
+        </div>
 
         <div className="w-full md:w-[78%]">
           <div className="flex items-center justify-between gap-3 mb-4 md:mb-6">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-left">
-              Explore
-            </h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-left">Explore</h2>
 
             <div className="hidden md:block">
               <SearchBar
                 classess="w-[28rem] lg:w-[32rem] rounded-full border border-gray-300 shadow-sm bg-white/80 h-12"
                 placeholder="Search"
                 ButtonInfo="w-14 h-full"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                onSubmit={(value) => setSearch(value)}
               />
             </div>
 
@@ -82,11 +109,7 @@ function AllMusic() {
                   stroke="currentColor"
                   strokeWidth={2}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
 
@@ -105,25 +128,11 @@ function AllMusic() {
                     stroke="currentColor"
                     strokeWidth={2}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 ) : (
-                  <svg
-                    className="h-5 w-5 text-gray-700"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"
-                    />
+                  <svg className="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
                   </svg>
                 )}
               </button>
@@ -136,52 +145,68 @@ function AllMusic() {
                 classess="w-full rounded-full border border-gray-300 shadow-sm bg-white/80 h-11"
                 placeholder="Search"
                 ButtonInfo="w-12 h-full"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                onSubmit={(value) => setSearch(value)}
               />
             </div>
           )}
 
-	          <div className="flex flex-col gap-12 md:gap-20">
-	          <div>
-	            <div className="flex items-center justify-between mb-3 px-8">
-	              <p className="text-xl font-semibold">Trending music</p>
-	              <a href="">View All</a>
-	            </div>
-	
-	            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
-	              {mockTracks.slice(0, 6).map((track) => (
-	                <MusicCard
-	                  key={track.id}
-	                  image={track.cover}
-	                  title={track.title}
-	                  subtitle={track.artist}
-	                  track={track}
-	                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
-	                />
-	              ))}
-	            </div>
-	          </div>
-	
-	          <div>
-	            <div className="flex items-center justify-between mb-3 px-8">
-	              <p className="text-xl font-semibold">New releases</p>
-	              <a href="">View All</a>
-	            </div>
-	
-	            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
-	              {mockTracks.slice(4, 10).map((track) => (
-	                <MusicCard
-	                  key={track.id}
-	                  image={track.cover}
-	                  title={track.title}
-	                  subtitle={track.artist}
-	                  track={track}
-	                  classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
-	                />
-	              ))}
-	            </div>
-	          </div>
-	        </div>
-      </div>
+          {loading ? <p className="mb-3 text-sm text-gray-500">Loading catalog...</p> : null}
+          {error ? <p className="mb-3 text-sm text-red-500">{error}</p> : null}
+
+          <div className="flex flex-col gap-12 md:gap-20">
+            <div>
+              <div className="flex items-center justify-between mb-3 px-8">
+                <p className="text-xl font-semibold">Trending music</p>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
+                {trending.map((track) => (
+                  <MusicCard
+                    key={track.id}
+                    image={track.cover}
+                    title={track.title}
+                    subtitle={track.artist}
+                    track={{
+                      id: track.id,
+                      title: track.title,
+                      artist: track.artist,
+                      cover: track.cover,
+                      audioSrc: track.previewUrl,
+                    }}
+                    classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-3 px-8">
+                <p className="text-xl font-semibold">New releases</p>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mx-auto w-full md:w-[90%]">
+                {releases.map((track) => (
+                  <MusicCard
+                    key={track.id}
+                    image={track.cover}
+                    title={track.title}
+                    subtitle={track.artist}
+                    track={{
+                      id: track.id,
+                      title: track.title,
+                      artist: track.artist,
+                      cover: track.cover,
+                      audioSrc: track.previewUrl,
+                    }}
+                    classes="h-32 sm:h-40 md:h-48 lg:h-52 w-full rounded-xl"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

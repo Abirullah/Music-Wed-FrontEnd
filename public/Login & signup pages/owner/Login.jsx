@@ -4,40 +4,40 @@ import Input from "../components/Input";
 import Button from "../components/Button"
 import bgImg from "../../../assets/Images/image 34.png";
 import { FcGoogle } from "react-icons/fc";
+import { loginUser } from "../../../src/api/auth";
+import { setSession } from "../../../src/utils/session";
 
 export default function UserLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
       e.preventDefault();
 
-      const owners = JSON.parse(localStorage.getItem("owners")) || [];
+      try {
+        setLoading(true);
+        setError("");
 
-      const owner = owners.find(
-        (u) => u.email === email && u.password === password,
-      );
+        const response = await loginUser({ email, password });
+        const role = String(response.user?.role || response.user?.Role || "").toLowerCase();
+        if (!["owner", "admin"].includes(role)) {
+          setError("This account is not registered as owner");
+          return;
+        }
 
-      if (!owner) {
-        setError("Invalid email or password");
-        return;
+        setSession({ token: response.token, user: response.user });
+        localStorage.setItem("desktopMode", "true");
+        navigate("/owner/dashboard");
+      } catch (err) {
+        setError(err.message || "Invalid email or password");
+      } finally {
+        setLoading(false);
       }
-
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({
-          id: owner.id,
-          fullName: owner.fullName,
-          email: owner.email,
-          Role: owner.Role,
-        }),
-      );
-
-      navigate("/");
     };
 
     
@@ -142,7 +142,7 @@ export default function UserLogin() {
             <Button
               type="submit"
               className="w-full h-12  bg-red-600/80  hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-              text="Submit"
+              text={loading ? "Signing in..." : "Submit"}
             />
           </form>
 
