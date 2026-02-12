@@ -43,8 +43,8 @@ const initialFormState = {
 const steps = [
   { id: 1, label: "Song information" },
   { id: 2, label: "Song links" },
-  { id: 3, label: "Pricing" },
-  { id: 4, label: "Song links" },
+  { id: 3, label: "Purpose" },
+  { id: 4, label: "Pricing" },
   { id: 5, label: "Agreement" },
 ];
 
@@ -309,7 +309,7 @@ export default function UploadASong() {
           )}
 
           {active === 3 && (
-            <PricingStep
+            <Purpose
               data={formData}
               errors={errors}
               setErrors={setErrors}
@@ -321,7 +321,7 @@ export default function UploadASong() {
           )}
 
           {active === 4 && (
-            <MoreLinksStep
+            <Price
               data={formData}
               onChange={handleChange}
               onSubmit={handleSubmitStep(4)}
@@ -562,7 +562,7 @@ function SongLinksStep({ data, onChange, onSubmit, errors }) {
   );
 }
 
-function PricingStep({
+function Purpose({
   data,
   errors,
   setErrors,
@@ -624,7 +624,7 @@ function PricingStep({
     >
       <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-6 shadow-sm">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Pricing</h2>
+          <h2 className="text-lg font-semibold">Purpose</h2>
           <span className="text-sm text-gray-500">Step {subStep}/4</span>
         </div>
 
@@ -643,9 +643,7 @@ function PricingStep({
 
             {[
               "Public places",
-              "Commercial / Business purpose",
-              "Metaverse",
-              "Specific / Custom licences",
+              "Individual",
             ].map((value) => (
               <RadioCard
                 key={value}
@@ -663,8 +661,7 @@ function PricingStep({
 
         {subStep === 2 && (
           <div className="space-y-3">
-            {data.pricingLicense === "Public places" ? (
-              <>
+             
                 <p className="text-sm text-gray-600">
                   License to use music in public places as
                 </p>
@@ -679,16 +676,11 @@ function PricingStep({
                 ))}
 
                 {errors.pricingUse ? (
-                  <p className="text-red-500 text-sm">{errors.pricingUse}</p>
-                ) : null}
-              </>
-            ) : (
-              <p className="text-sm text-gray-600">
-                Pricing flow for this license type will be available soon.
-              </p>
-            )}
+  <p className="text-red-500 text-sm">{errors.pricingUse}</p>
+) : null}
+
           </div>
-        )}
+              )}
 
         {subStep === 3 && (
           <div className="space-y-3">
@@ -733,9 +725,27 @@ function PricingStep({
                 ) : null}
               </>
             ) : (
-              <p className="text-sm text-gray-600">
-                Continue to the next step to submit pricing.
-              </p>
+              <>
+               <p className="text-sm text-gray-600">
+                  Public places, {data.pricingUse || "Background"} —{" "}
+                  {data.pricingPlace || "Select a category"}
+                </p>
+
+                <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-4">
+                  <p className="text-sm font-semibold text-gray-700">List 1</p>
+
+                  <Input
+                    id="ArtificalUrl"
+                    label="ArticificalUrl"
+                    placeholder="Url"
+                    value={data.seatingCapacity}
+                    onChange={onChange}
+                    error={errors.seatingCapacity}
+                  />
+                  
+                  
+                  </div>
+              </>
             )}
           </div>
         )}
@@ -750,41 +760,16 @@ function PricingStep({
                 </p>
 
                 <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 space-y-4">
-                  <p className="text-sm font-semibold text-gray-700">List 1</p>
 
                   <Input
-                    id="seatingCapacity"
-                    label="Seating capacity"
-                    placeholder="Example: 30 seater"
+                    id="ArtificalUrl"
+                    label="ArticificalUrl"
+                    placeholder="Url"
                     value={data.seatingCapacity}
                     onChange={onChange}
                     error={errors.seatingCapacity}
                   />
 
-                  <Input
-                    id="priceYear"
-                    label="Price of licence (1 year validity)"
-                    placeholder="Enter value"
-                    value={data.priceYear}
-                    onChange={onChange}
-                    error={errors.priceYear}
-                  />
-
-                  <Input
-                    id="priceSixMonths"
-                    label="Price of licence (6 months validity)"
-                    placeholder="Enter value"
-                    value={data.priceSixMonths}
-                    onChange={onChange}
-                    error={errors.priceSixMonths}
-                  />
-
-                  <button
-                    type="button"
-                    className="w-full rounded-xl border border-gray-300 bg-white py-3 text-sm font-medium hover:bg-gray-50"
-                  >
-                    + Add an option if needed
-                  </button>
                 </div>
               </>
             ) : (
@@ -823,7 +808,7 @@ function PricingStep({
   );
 }
 
-function MoreLinksStep({ data, onChange, onSubmit, goBack }) {
+function Price({ data, onChange, onSubmit, goBack }) {
   return (
     <form onSubmit={onSubmit} className="w-full">
       <Card
@@ -847,16 +832,13 @@ function MoreLinksStep({ data, onChange, onSubmit, goBack }) {
         }
       >
         <Input
-          id="affiliateLink"
-          label="Affiliate link (optional)"
-          placeholder="Enter link"
-          value={data.affiliateLink}
+          id="price"
+          label="Price"
+          placeholder="$0"
+          value={data.price}
           onChange={onChange}
         />
 
-        <p className="text-sm text-gray-500">
-          Add any extra link you want your customers to see.
-        </p>
       </Card>
     </form>
   );
