@@ -52,7 +52,19 @@ export default function UploadAContent() {
   const [coverTemplateFile, setCoverTemplateFile] = useState(null);
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("uploadContent");
-    return saved ? { ...initialFormState, ...JSON.parse(saved) } : initialFormState;
+    if (!saved) return initialFormState;
+
+    try {
+      const parsed = JSON.parse(saved);
+      return {
+        ...initialFormState,
+        ...parsed,
+        // File objects are not persisted in localStorage; force users to pick files again.
+        coverTemplate: "",
+      };
+    } catch {
+      return initialFormState;
+    }
   });
   const [errors, setErrors] = useState({});
 
@@ -108,8 +120,8 @@ export default function UploadAContent() {
     
     if (step === 1) {
       if (!formData.copyright.trim()) newErrors.copyright = "Required";
-      if (!coverTemplateFile && !formData.coverTemplate.trim()) newErrors.coverTemplate = "Required";
-      if (!contentFile) newErrors.contentFile = "Required";
+      if (!coverTemplateFile) newErrors.coverTemplate = "Cover template file is required";
+      if (!contentFile) newErrors.contentFile = "Content file is required";
       if (!formData.contentName.trim()) newErrors.contentName = "Required";
       if (!formData.artistName.trim()) newErrors.artistName = "Required";
       if (!formData.releaseDate.trim()) newErrors.releaseDate = "Required";
@@ -178,6 +190,16 @@ export default function UploadAContent() {
     const currentUser = getCurrentUser();
     if (!currentUser?.id) {
       setSubmitError("Please login as owner to upload.");
+      return;
+    }
+
+    if (!contentFile || !coverTemplateFile) {
+      setSubmitError("Please select both content and cover template files before final submit.");
+      setErrors((prev) => ({
+        ...prev,
+        ...(contentFile ? {} : { contentFile: "Content file is required" }),
+        ...(coverTemplateFile ? {} : { coverTemplate: "Cover template file is required" }),
+      }));
       return;
     }
 

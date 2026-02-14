@@ -66,6 +66,9 @@ export default function UploadASong() {
       return {
         ...initialFormState,
         ...parsed,
+        // File objects are not persisted in localStorage; force users to pick files again.
+        musicLink: "",
+        cover: "",
         spotify: parsed.spotify ?? parsed.shopify ?? "",
         gaana: parsed.gaana ?? parsed.jio ?? "",
         other: parsed.other ?? parsed.songLink ?? "",
@@ -91,7 +94,7 @@ export default function UploadASong() {
     if (id === 2) return completed[1];
     if (id === 3) return completed[2];
     if (id === 4) return completed[3];
-    if (id === 5) return completed[3]; // allow skipping step 4
+    if (id === 5) return completed[3]; 
     return false;
   };
 
@@ -130,8 +133,8 @@ export default function UploadASong() {
 
     if (step === 1) {
       if (!formData.copyright?.trim()) newErrors.copyright = "Required";
-      if (!musicFile && !formData.musicLink?.trim()) newErrors.musicLink = "Required";
-      if (!coverFile && !formData.cover?.trim()) newErrors.cover = "Required";
+      if (!musicFile) newErrors.musicLink = "Music file is required";
+      if (!coverFile) newErrors.cover = "Cover template file is required";
       if (!formData.musicName?.trim()) newErrors.musicName = "Required";
       if (!formData.artistName?.trim()) newErrors.artistName = "Required";
       if (!formData.releaseDate?.trim()) newErrors.releaseDate = "Required";
@@ -188,6 +191,16 @@ export default function UploadASong() {
     const currentUser = getCurrentUser();
     if (!currentUser?.id) {
       setSubmitError("Please login as owner to upload.");
+      return;
+    }
+
+    if (!musicFile || !coverFile) {
+      setSubmitError("Please select both music and cover template files before final submit.");
+      setErrors((prev) => ({
+        ...prev,
+        ...(musicFile ? {} : { musicLink: "Music file is required" }),
+        ...(coverFile ? {} : { cover: "Cover template file is required" }),
+      }));
       return;
     }
 
