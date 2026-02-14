@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import OwnerDishBoard from "./OwnerDishBoard";
 import Sidebar from "./Parts/SideBar";
 import OwnerUploads from "./OwnerUploads";
@@ -11,10 +11,21 @@ import MobileTopBar from "./Parts/MobileTopBar";
 import BottomNav from "./Parts/BottomNav";
 import OwnerAccountSettings from "./OwnerAccountSettings";
 import OwnerSettingsSheet from "./Parts/OwnerSettingsSheet";
+import { getAuthToken, getCurrentUser } from "../../../src/utils/session";
 
 function Owner() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const currentUser = useMemo(() => getCurrentUser(), []);
+  const token = useMemo(() => getAuthToken(), []);
+
+  useEffect(() => {
+    const role = String(currentUser?.role || currentUser?.Role || "").toLowerCase();
+    if (!token || !["owner", "admin"].includes(role)) {
+      navigate("/owner/login", { replace: true });
+    }
+  }, [currentUser?.Role, currentUser?.role, navigate, token]);
 
   // Map paths to parts
   const pathToPart = {

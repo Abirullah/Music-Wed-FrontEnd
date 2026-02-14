@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NavBar from "../../Component/NavBar";
 import SmallNavBar from "../../Component/SmallNavBar";
 import PurchaseList from "./Parts/PurchaseList";
 import Faverouite from "./Parts/Faverouite";
 import UserInfo from "./Parts/UserInfo";
 import { SideMenu } from "../../Component/SideMenu";
+import { getAuthToken, getCurrentUser } from "../../../src/utils/session";
 
 function Purchases() {
+  const navigate = useNavigate();
+  const currentUser = useMemo(() => getCurrentUser(), []);
+  const token = useMemo(() => getAuthToken(), []);
+
+  useEffect(() => {
+    const role = String(currentUser?.role || currentUser?.Role || "user").toLowerCase();
+    if (!token || role === "owner" || role === "admin") {
+      navigate("/user/login", { replace: true });
+    }
+  }, [currentUser?.Role, currentUser?.role, navigate, token]);
+
   const [CurrentPart, setCurrentPart] = useState(() => {
     try {
       return Number(localStorage.getItem("CurrentPage")) || 0;

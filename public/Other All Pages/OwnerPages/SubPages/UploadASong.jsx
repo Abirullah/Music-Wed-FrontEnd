@@ -55,6 +55,8 @@ export default function UploadASong() {
   const [noteOpen, setNoteOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [musicFile, setMusicFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
 
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("uploadedSong");
@@ -109,13 +111,27 @@ export default function UploadASong() {
     setErrors((err) => ({ ...err, [name]: "" }));
   };
 
+  const handleFileChange = (field, file) => {
+    if (field === "music") {
+      setMusicFile(file || null);
+      setFormData((prev) => ({ ...prev, musicLink: file?.name || "" }));
+      setErrors((prev) => ({ ...prev, musicLink: "" }));
+    }
+
+    if (field === "cover") {
+      setCoverFile(file || null);
+      setFormData((prev) => ({ ...prev, cover: file?.name || "" }));
+      setErrors((prev) => ({ ...prev, cover: "" }));
+    }
+  };
+
   const validateStep = (step) => {
     const newErrors = {};
 
     if (step === 1) {
       if (!formData.copyright?.trim()) newErrors.copyright = "Required";
-      if (!formData.musicLink?.trim()) newErrors.musicLink = "Required";
-      if (!formData.cover?.trim()) newErrors.cover = "Required";
+      if (!musicFile && !formData.musicLink?.trim()) newErrors.musicLink = "Required";
+      if (!coverFile && !formData.cover?.trim()) newErrors.cover = "Required";
       if (!formData.musicName?.trim()) newErrors.musicName = "Required";
       if (!formData.artistName?.trim()) newErrors.artistName = "Required";
       if (!formData.releaseDate?.trim()) newErrors.releaseDate = "Required";
@@ -135,7 +151,9 @@ export default function UploadASong() {
         formData.other,
       ].map((v) => (v || "").trim());
 
-      if (!links.some(Boolean)) newErrors._links = "At least one link is required";
+      if (!links.some(Boolean) && !musicFile) {
+        newErrors._links = "At least one link or uploaded music file is required";
+      }
     }
 
     if (step === 3) {
@@ -177,14 +195,24 @@ export default function UploadASong() {
       setSubmitting(true);
       setSubmitError("");
 
-      const payload = {
-        ...formData,
-        price:
-          formData.price ||
-          formData.priceSixMonths ||
-          formData.priceYear ||
-          0,
-      };
+      const payload = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        payload.append(key, value ?? "");
+      });
+
+      const resolvedPrice =
+        formData.price ||
+        formData.priceSixMonths ||
+        formData.priceYear ||
+        0;
+      payload.set("price", resolvedPrice);
+
+      if (musicFile) {
+        payload.set("musicFile", musicFile);
+      }
+      if (coverFile) {
+        payload.set("coverFile", coverFile);
+      }
 
       await uploadSong(currentUser.id, payload);
 
@@ -302,8 +330,11 @@ export default function UploadASong() {
           {active === 1 && (
             <SongInfoStep
               data={formData}
+              musicFile={musicFile}
+              coverFile={coverFile}
               errors={errors}
               onChange={handleChange}
+              onFileChange={handleFileChange}
               onRadioChange={handleRadioChange}
               onSubmit={handleSubmitStep(1)}
             />
@@ -385,7 +416,16 @@ function Card({ title, children, footer }) {
   );
 }
 
-function SongInfoStep({ data, onChange, onRadioChange, onSubmit, errors }) {
+function SongInfoStep({
+  data,
+  musicFile,
+  coverFile,
+  onChange,
+  onFileChange,
+  onRadioChange,
+  onSubmit,
+  errors,
+}) {
   return (
     <form onSubmit={onSubmit} className="w-full">
       <Card
@@ -425,22 +465,22 @@ function SongInfoStep({ data, onChange, onRadioChange, onSubmit, errors }) {
           error={errors.copyright}
         />
 
-        <Input
-          id="musicLink"
-          label="Upload music *"
-          placeholder="Enter link from platform (Ex: Spotify, YouTube, iMusic, etc.)"
-          value={data.musicLink}
-          onChange={onChange}
+        <FilePicker
+          label="Upload music file *"
+          file={musicFile}
+          fallbackName={data.musicLink}
+          accept="audio/*"
           error={errors.musicLink}
+          onFileSelect={(file) => onFileChange("music", file)}
         />
 
-        <Input
-          id="cover"
-          label="Upload cover template *"
-          placeholder="Enter link from platform (Ex: Spotify, YouTube, iMusic, etc.)"
-          value={data.cover}
-          onChange={onChange}
+        <FilePicker
+          label="Upload cover template file *"
+          file={coverFile}
+          fallbackName={data.cover}
+          accept="image/*"
           error={errors.cover}
+          onFileSelect={(file) => onFileChange("cover", file)}
         />
 
         <Input
@@ -908,6 +948,35 @@ function AgreementStep({ data, onChange, onSubmit, errors, goBack, isSubmitting 
         </div>
       </Card>
     </form>
+  );
+}
+
+function FilePicker({
+  label,
+  file,
+  fallbackName = "",
+  accept,
+  error = "",
+  onFileSelect,
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-sm font-medium">{label}</p>
+      <label
+        className={`cursor-pointer rounded-xl border px-4 py-3 text-sm ${
+          error ? "border-red-500" : "border-gray-300"
+        }`}
+      >
+        <input
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(event) => onFileSelect?.(event.target.files?.[0] || null)}
+        />
+        {file?.name || fallbackName || "Choose file"}
+      </label>
+      {error ? <p className="text-red-500 text-xs">{error}</p> : null}
+    </div>
   );
 }
 

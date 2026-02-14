@@ -48,6 +48,8 @@ export default function UploadAContent() {
   const [noteOpen, setNoteOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [contentFile, setContentFile] = useState(null);
+  const [coverTemplateFile, setCoverTemplateFile] = useState(null);
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("uploadContent");
     return saved ? { ...initialFormState, ...JSON.parse(saved) } : initialFormState;
@@ -88,12 +90,26 @@ export default function UploadAContent() {
     setErrors((err) => ({ ...err, [name]: "" }));
   };
 
+  const handleFileChange = (field, file) => {
+    if (field === "contentFile") {
+      setContentFile(file || null);
+      setErrors((prev) => ({ ...prev, contentFile: "" }));
+    }
+
+    if (field === "coverTemplateFile") {
+      setCoverTemplateFile(file || null);
+      setFormData((prev) => ({ ...prev, coverTemplate: file?.name || "" }));
+      setErrors((prev) => ({ ...prev, coverTemplate: "" }));
+    }
+  };
+
   const validateStep = (step) => {
     const newErrors = {};
     
     if (step === 1) {
       if (!formData.copyright.trim()) newErrors.copyright = "Required";
-      if (!formData.coverTemplate.trim()) newErrors.coverTemplate = "Required";
+      if (!coverTemplateFile && !formData.coverTemplate.trim()) newErrors.coverTemplate = "Required";
+      if (!contentFile) newErrors.contentFile = "Required";
       if (!formData.contentName.trim()) newErrors.contentName = "Required";
       if (!formData.artistName.trim()) newErrors.artistName = "Required";
       if (!formData.releaseDate.trim()) newErrors.releaseDate = "Required";
@@ -113,8 +129,8 @@ export default function UploadAContent() {
         formData.snapchat,
         formData.other,
       ];
-      if (!links.some(link => link && link.trim())) {
-        newErrors._links = "At least one link is required";
+      if (!links.some(link => link && link.trim()) && !contentFile) {
+        newErrors._links = "At least one link or content file is required";
       }
     }
 
@@ -169,7 +185,20 @@ export default function UploadAContent() {
       setSubmitting(true);
       setSubmitError("");
 
-      await uploadContent(currentUser.id, formData);
+      const payload = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        payload.append(key, value ?? "");
+      });
+
+      if (contentFile) {
+        payload.set("contentFile", contentFile);
+      }
+
+      if (coverTemplateFile) {
+        payload.set("coverTemplateFile", coverTemplateFile);
+      }
+
+      await uploadContent(currentUser.id, payload);
 
       localStorage.removeItem("uploadContent");
       localStorage.removeItem("uploadContentCompleted");
@@ -277,7 +306,10 @@ export default function UploadAContent() {
           {active === 1 && (
             <StepOne
               data={formData}
+              contentFile={contentFile}
+              coverTemplateFile={coverTemplateFile}
               onChange={handleChange}
+              onFileChange={handleFileChange}
               onRadioChange={handleRadio}
               onSubmit={handleSubmitStep(1)}
               errors={errors}
@@ -349,7 +381,15 @@ export default function UploadAContent() {
   );
 }
 
-function StepOne({ data, onChange, onSubmit, errors }) {
+function StepOne({
+  data,
+  contentFile,
+  coverTemplateFile,
+  onChange,
+  onFileChange,
+  onSubmit,
+  errors,
+}) {
   return (
     <form onSubmit={onSubmit} className="w-full">
       <div className="rounded-2xl bg-white border border-gray-200 p-4 md:p-6 space-y-5 shadow-sm">
@@ -364,13 +404,22 @@ function StepOne({ data, onChange, onSubmit, errors }) {
           error={errors.copyright}
         />
 
-        <Input
-          id="coverTemplate"
-          label="Upload cover template *"
-          placeholder="Enter link from a platform (Ex: Spotify, Youtube, iMusic etc)"
-          value={data.coverTemplate}
-          onChange={onChange}
+        <FilePicker
+          label="Upload content file *"
+          file={contentFile}
+          fallbackName={contentFile?.name}
+          accept="video/*,audio/*"
+          error={errors.contentFile}
+          onFileSelect={(file) => onFileChange("contentFile", file)}
+        />
+
+        <FilePicker
+          label="Upload cover template file *"
+          file={coverTemplateFile}
+          fallbackName={data.coverTemplate}
+          accept="image/*"
           error={errors.coverTemplate}
+          onFileSelect={(file) => onFileChange("coverTemplateFile", file)}
         />
 
         <Input
@@ -791,6 +840,35 @@ function StepFive({ data, onChange, onSubmit, errors, goBack, isSubmitting = fal
         </div>
       </div>
     </form>
+  );
+}
+
+function FilePicker({
+  label,
+  file,
+  fallbackName = "",
+  accept,
+  error = "",
+  onFileSelect,
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-sm font-medium">{label}</p>
+      <label
+        className={`cursor-pointer rounded-xl border px-4 py-3 text-sm ${
+          error ? "border-red-500" : "border-gray-300"
+        }`}
+      >
+        <input
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(event) => onFileSelect?.(event.target.files?.[0] || null)}
+        />
+        {file?.name || fallbackName || "Choose file"}
+      </label>
+      {error ? <p className="text-red-500 text-xs">{error}</p> : null}
+    </div>
   );
 }
 

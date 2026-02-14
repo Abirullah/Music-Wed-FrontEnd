@@ -1,8 +1,23 @@
-import { getAuthToken } from "../utils/session";
+import { clearSession, getAuthToken, getCurrentUser } from "../utils/session";
 
 const DEFAULT_BASE_URL = "http://localhost:3000";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || DEFAULT_BASE_URL;
+
+const redirectToLogin = () => {
+  if (typeof window === "undefined") return;
+
+  const pathname = window.location.pathname || "/";
+  if (pathname.includes("/login")) return;
+
+  const currentUser = getCurrentUser();
+  const isOwnerContext =
+    pathname.startsWith("/owner") ||
+    ["owner", "admin"].includes(String(currentUser?.role || "").toLowerCase());
+
+  const target = isOwnerContext ? "/owner/login" : "/user/login";
+  window.location.assign(target);
+};
 
 const buildUrl = (path, query) => {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -43,6 +58,11 @@ export const apiRequest = async (
   }
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearSession();
+      redirectToLogin();
+    }
+
     const message = payload?.message || `Request failed with status ${response.status}`;
     const error = new Error(message);
     error.status = response.status;
