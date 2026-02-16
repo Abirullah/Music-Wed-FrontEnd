@@ -5,7 +5,7 @@ import Input from "../../../Component/Input";
 import StepperPills from "../Parts/StepperPills";
 import MobileBottomSheet from "../Parts/MobileBottomSheet";
 import { uploadSong } from "../../../../src/api/owner";
-import { getCurrentUser } from "../../../../src/utils/session";
+import { getAuthToken, getCurrentUser } from "../../../../src/utils/session";
 
 const initialFormState = {
   musicCategory: "Song",
@@ -189,8 +189,12 @@ export default function UploadASong() {
 
   const handleFinalSubmit = async () => {
     const currentUser = getCurrentUser();
-    if (!currentUser?.id) {
+    const authToken = getAuthToken();
+    const role = String(currentUser?.role || currentUser?.Role || "").toLowerCase();
+
+    if (!authToken || !currentUser?.id || !["owner", "admin"].includes(role)) {
       setSubmitError("Please login as owner to upload.");
+      navigate("/owner/login");
       return;
     }
 
