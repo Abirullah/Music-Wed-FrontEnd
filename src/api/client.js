@@ -1,6 +1,6 @@
 import { clearSession, getAuthToken, getCurrentUser } from "../utils/session";
 
-const DEFAULT_BASE_URL = "http://localhost:3000";
+const DEFAULT_BASE_URL = "http://127.0.0.1:5000";
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const DEFAULT_UPLOAD_TIMEOUT_MS = 180_000;
 
