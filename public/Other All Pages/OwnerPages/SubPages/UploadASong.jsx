@@ -66,7 +66,6 @@ export default function UploadASong() {
       return {
         ...initialFormState,
         ...parsed,
-        // File objects are not persisted in localStorage; force users to pick files again.
         musicLink: "",
         cover: "",
         spotify: parsed.spotify ?? parsed.shopify ?? "",
