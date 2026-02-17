@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
@@ -17,6 +17,7 @@ const initialFormState = {
   uploadHeading: "",
   uploadExpiryValue: "",
   uploadNonExpiryValue: "",
+  customLicense: "",
 
   copyright: "",
   coverTemplate: "",
@@ -43,18 +44,23 @@ const initialFormState = {
   agreement: "",
 };
 
+const CONTENT_DRAFT_KEY = "uploadContent";
+const CONTENT_COMPLETED_KEY = "uploadContentCompleted";
+
 export default function UploadAContent() {
   const navigate = useNavigate();
   const [active, setActive] = useState(1);
   const [noteOpen, setNoteOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadMessage, setUploadMessage] = useState("Uploading...");
   const [contentFile, setContentFile] = useState(null);
   const [coverTemplateFile, setCoverTemplateFile] = useState(null);
+  const uploadAbortControllerRef = useRef(null);
   const [formData, setFormData] = useState(() => {
-    const saved = localStorage.getItem("uploadContent");
+    const saved = sessionStorage.getItem(CONTENT_DRAFT_KEY);
     if (!saved) return initialFormState;
 
     try {
@@ -72,7 +78,7 @@ export default function UploadAContent() {
   const [errors, setErrors] = useState({});
 
   const [completed, setCompleted] = useState(() => {
-    const saved = localStorage.getItem("uploadContentCompleted");
+    const saved = sessionStorage.getItem(CONTENT_COMPLETED_KEY);
     return saved ? JSON.parse(saved) : { 1: false, 2: false, 3: false, 4: false, 5: false };
   });
 
@@ -165,10 +171,10 @@ export default function UploadAContent() {
   };
 
   const saveAndComplete = (step) => {
-    localStorage.setItem("uploadContent", JSON.stringify(formData));
+    sessionStorage.setItem(CONTENT_DRAFT_KEY, JSON.stringify(formData));
     const newCompleted = { ...completed, [step]: true };
     setCompleted(newCompleted);
-    localStorage.setItem("uploadContentCompleted", JSON.stringify(newCompleted));
+    sessionStorage.setItem(CONTENT_COMPLETED_KEY, JSON.stringify(newCompleted));
   };
 
   const handleSubmitStep = (step) => {
@@ -189,12 +195,8 @@ export default function UploadAContent() {
     };
   };
 
-  // Simulate progress while uploading
   useEffect(() => {
-    if (submitting) {
-      setUploadProgress(0);
-      setUploadMessage("Preparing files...");
-      
+    if (submitting && !isCancelling) {
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 90) {
@@ -212,7 +214,14 @@ export default function UploadAContent() {
 
       return () => clearInterval(interval);
     }
-  }, [submitting]);
+  }, [submitting, isCancelling]);
+
+  const handleCancelUpload = () => {
+    if (!submitting || isCancelling) return;
+    setIsCancelling(true);
+    setUploadMessage("Cancelling upload...");
+    uploadAbortControllerRef.current?.abort();
+  };
 
   const handleFinalSubmit = async () => {
     const currentUser = getCurrentUser();
@@ -237,6 +246,7 @@ export default function UploadAContent() {
 
     try {
       setSubmitting(true);
+      setIsCancelling(false);
       setSubmitError("");
       setUploadProgress(10);
       setUploadMessage("Starting upload...");
@@ -257,13 +267,16 @@ export default function UploadAContent() {
       setUploadProgress(20);
       setUploadMessage("Uploading files...");
 
-      await uploadContent(currentUser.id, payload);
+      uploadAbortControllerRef.current = new AbortController();
+      await uploadContent(currentUser.id, payload, {
+        signal: uploadAbortControllerRef.current.signal,
+      });
 
       setUploadProgress(100);
       setUploadMessage("Upload complete!");
 
-      localStorage.removeItem("uploadContent");
-      localStorage.removeItem("uploadContentCompleted");
+      sessionStorage.removeItem(CONTENT_DRAFT_KEY);
+      sessionStorage.removeItem(CONTENT_COMPLETED_KEY);
 
       // Small delay to show 100% completion
       setTimeout(() => {
@@ -272,9 +285,15 @@ export default function UploadAContent() {
         });
       }, 500);
     } catch (error) {
-      setSubmitError(error.message || "Content upload failed");
+      if (error?.code === "UPLOAD_CANCELLED" || error?.name === "AbortError") {
+        setSubmitError("Upload cancelled");
+      } else {
+        setSubmitError(error.message || "Content upload failed");
+      }
       setUploadProgress(0);
     } finally {
+      uploadAbortControllerRef.current = null;
+      setIsCancelling(false);
       setTimeout(() => {
         setSubmitting(false);
       }, 500);
@@ -450,6 +469,8 @@ export default function UploadAContent() {
         open={submitting}
         progress={uploadProgress}
         message={uploadMessage}
+        onCancel={handleCancelUpload}
+        isCancelling={isCancelling}
       />
     </div>
   );

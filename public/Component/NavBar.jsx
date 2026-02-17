@@ -33,7 +33,7 @@ export default function NavBar({
     if (onProfileClick) return onProfileClick();
 
     if (userProfile.Role === "owner") {
-      localStorage.setItem("desktopMode", "true");
+      sessionStorage.setItem("desktopMode", "true");
       navigate("/owner/dashboard");
       return;
     }

@@ -2,10 +2,24 @@ import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CloudArrowUpIcon } from "@heroicons/react/24/outline";
 
-export default function UploadProgressPopup({ open, progress = 0, message = "Uploading..." }) {
+export default function UploadProgressPopup({
+  open,
+  progress = 0,
+  message = "Uploading...",
+  onCancel,
+  isCancelling = false,
+}) {
+  const canCancel = typeof onCancel === "function" && progress < 100 && !isCancelling;
+
   return (
     <Transition appear show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => {}}>
+      <Dialog
+        as="div"
+        className="relative z-50"
+        onClose={() => {
+          if (canCancel) onCancel();
+        }}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -29,19 +43,17 @@ export default function UploadProgressPopup({ open, progress = 0, message = "Upl
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 text-center shadow-2xl transition-all">
-                <div className="flex flex-col items-center gap-6">
-                  {/* Animated Upload Icon */}
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-3xl border-2 border-black bg-white p-8 text-center shadow-2xl transition-all">
+                <div className="flex flex-col items-center gap-5">
                   <div className="relative">
-                    <div className="absolute inset-0 animate-ping rounded-full bg-blue-400 opacity-20"></div>
-                    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                      <CloudArrowUpIcon className="h-10 w-10 text-white animate-bounce" />
+                    <div className="absolute inset-0 animate-ping rounded-full bg-yellow-300 opacity-40" />
+                    <div className="relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-black bg-yellow-400 shadow-md">
+                      <CloudArrowUpIcon className="h-10 w-10 animate-bounce text-black" />
                     </div>
                   </div>
 
-                  {/* Message */}
                   <div className="space-y-2">
-                    <Dialog.Title className="text-2xl font-bold text-gray-900">
+                    <Dialog.Title className="text-2xl font-bold text-black">
                       {message}
                     </Dialog.Title>
                     <p className="text-sm text-gray-600">
@@ -49,32 +61,44 @@ export default function UploadProgressPopup({ open, progress = 0, message = "Upl
                     </p>
                   </div>
 
-                  {/* Progress Bar */}
                   <div className="w-full space-y-2">
-                    <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div className="h-3 w-full overflow-hidden rounded-full border border-black/20 bg-yellow-100">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500 ease-out"
+                        className="h-full rounded-full bg-black transition-all duration-500 ease-out"
                         style={{ width: `${progress}%` }}
                       >
-                        <div className="h-full w-full animate-pulse bg-white/20"></div>
+                        <div className="h-full w-full animate-pulse bg-yellow-300/20" />
                       </div>
                     </div>
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-sm font-semibold text-black">
                       {progress}% Complete
                     </p>
                   </div>
 
-                  {/* Loading Dots */}
                   <div className="flex gap-2">
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.3s]"></div>
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-purple-500 [animation-delay:-0.15s]"></div>
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-pink-500"></div>
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-black [animation-delay:-0.3s]" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-yellow-500 [animation-delay:-0.15s]" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-black" />
                   </div>
 
-                  {/* Info Text */}
                   <p className="text-xs text-gray-500">
                     This may take a few minutes depending on file size
                   </p>
+
+                  {onCancel ? (
+                    <button
+                      type="button"
+                      onClick={onCancel}
+                      disabled={!canCancel}
+                      className={`mt-2 w-full rounded-xl border-2 px-4 py-2 text-sm font-semibold transition ${
+                        canCancel
+                          ? "border-black bg-yellow-400 text-black hover:bg-yellow-300"
+                          : "cursor-not-allowed border-gray-300 bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {isCancelling ? "Cancelling..." : "Cancel Upload"}
+                    </button>
+                  ) : null}
                 </div>
               </Dialog.Panel>
             </Transition.Child>

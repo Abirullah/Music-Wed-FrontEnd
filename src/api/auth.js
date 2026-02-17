@@ -13,7 +13,14 @@ export const registerUser = async ({ fullName, email, password, role }) => {
 };
 
 export const loginUser = async ({ email, password }) => {
-  return apiRequest("/accounts/login", {
+  return apiRequest("/accounts/login/user", {
+    method: "POST",
+    body: { email, password },
+  });
+};
+
+export const loginOwner = async ({ email, password }) => {
+  return apiRequest("/accounts/login/owner", {
     method: "POST",
     body: { email, password },
   });

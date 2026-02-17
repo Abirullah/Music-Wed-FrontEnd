@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
@@ -50,19 +50,24 @@ const steps = [
   { id: 5, label: "Agreement" },
 ];
 
+const SONG_DRAFT_KEY = "uploadedSong";
+const SONG_COMPLETED_KEY = "uploadCompleted";
+
 export default function UploadASong() {
   const navigate = useNavigate();
   const [active, setActive] = useState(1);
   const [noteOpen, setNoteOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadMessage, setUploadMessage] = useState("Uploading...");
   const [musicFile, setMusicFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
+  const uploadAbortControllerRef = useRef(null);
 
   const [formData, setFormData] = useState(() => {
-    const saved = localStorage.getItem("uploadedSong");
+    const saved = sessionStorage.getItem(SONG_DRAFT_KEY);
     if (!saved) return initialFormState;
     try {
       const parsed = JSON.parse(saved);
@@ -84,7 +89,7 @@ export default function UploadASong() {
   const [completed, setCompleted] = useState(() => {
     let saved = {};
     try {
-      saved = JSON.parse(localStorage.getItem("uploadCompleted") || "{}");
+      saved = JSON.parse(sessionStorage.getItem(SONG_COMPLETED_KEY) || "{}");
     } catch {
       saved = {};
     }
@@ -183,18 +188,14 @@ export default function UploadASong() {
   };
 
   const saveAndComplete = (step) => {
-    localStorage.setItem("uploadedSong", JSON.stringify(formData));
+    sessionStorage.setItem(SONG_DRAFT_KEY, JSON.stringify(formData));
     const newCompleted = { ...completed, [step]: true };
     setCompleted(newCompleted);
-    localStorage.setItem("uploadCompleted", JSON.stringify(newCompleted));
+    sessionStorage.setItem(SONG_COMPLETED_KEY, JSON.stringify(newCompleted));
   };
 
-  // Simulate progress while uploading
   useEffect(() => {
-    if (submitting) {
-      setUploadProgress(0);
-      setUploadMessage("Preparing files...");
-      
+    if (submitting && !isCancelling) {
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 90) {
@@ -212,7 +213,14 @@ export default function UploadASong() {
 
       return () => clearInterval(interval);
     }
-  }, [submitting]);
+  }, [submitting, isCancelling]);
+
+  const handleCancelUpload = () => {
+    if (!submitting || isCancelling) return;
+    setIsCancelling(true);
+    setUploadMessage("Cancelling upload...");
+    uploadAbortControllerRef.current?.abort();
+  };
 
   const handleFinalSubmit = async () => {
     const currentUser = getCurrentUser();
@@ -237,6 +245,7 @@ export default function UploadASong() {
 
     try {
       setSubmitting(true);
+      setIsCancelling(false);
       setSubmitError("");
       setUploadProgress(10);
       setUploadMessage("Starting upload...");
@@ -263,13 +272,16 @@ export default function UploadASong() {
       setUploadProgress(20);
       setUploadMessage("Uploading files...");
 
-      await uploadSong(currentUser.id, payload);
+      uploadAbortControllerRef.current = new AbortController();
+      await uploadSong(currentUser.id, payload, {
+        signal: uploadAbortControllerRef.current.signal,
+      });
 
       setUploadProgress(100);
       setUploadMessage("Upload complete!");
 
-      localStorage.removeItem("uploadedSong");
-      localStorage.removeItem("uploadCompleted");
+      sessionStorage.removeItem(SONG_DRAFT_KEY);
+      sessionStorage.removeItem(SONG_COMPLETED_KEY);
 
       // Small delay to show 100% completion
       setTimeout(() => {
@@ -278,9 +290,15 @@ export default function UploadASong() {
         });
       }, 500);
     } catch (error) {
-      setSubmitError(error.message || "Song upload failed");
+      if (error?.code === "UPLOAD_CANCELLED" || error?.name === "AbortError") {
+        setSubmitError("Upload cancelled");
+      } else {
+        setSubmitError(error.message || "Song upload failed");
+      }
       setUploadProgress(0);
     } finally {
+      uploadAbortControllerRef.current = null;
+      setIsCancelling(false);
       setTimeout(() => {
         setSubmitting(false);
       }, 500);
@@ -465,6 +483,8 @@ export default function UploadASong() {
         open={submitting}
         progress={uploadProgress}
         message={uploadMessage}
+        onCancel={handleCancelUpload}
+        isCancelling={isCancelling}
       />
     </div>
   );

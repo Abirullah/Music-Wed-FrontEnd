@@ -27,16 +27,18 @@ import OwnerSuccess from "../public/Login & signup pages/owner/Success";
 function App() {
   useEffect(() => {
     const applyDesktopClass = () => {
-      const desktop = localStorage.getItem("desktopMode") === "true";
+      const desktop = sessionStorage.getItem("desktopMode") === "true";
+      if (localStorage.getItem("desktopMode") !== null) {
+        localStorage.removeItem("desktopMode");
+      }
       if (desktop) document.body.classList.add("desktop-mode");
       else document.body.classList.remove("desktop-mode");
     };
 
     applyDesktopClass();
 
-    // Keep in sync across tabs/windows
     const handler = (e) => {
-      if (e.key === "desktopMode") applyDesktopClass();// Apply a global `desktop-mode` class to <body> based on localStorage so components can style differently
+      if (e.key === "desktopMode") applyDesktopClass();
     };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);

@@ -1,10 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
 import SearchBar from "./Parts/SearchBar";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import UploadSuccessPopup from "./Parts/UploadSuccessPopup";
 import { fetchOwnerUploads } from "../../../src/api/owner";
 import { getCurrentUser } from "../../../src/utils/session";
 
+const truncateLink = (value = "", maxLength = 44) => {
+  const normalized = String(value || "").trim();
+  if (!normalized) return "";
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 3)}...`;
+};
+
+const formatAffiliateLinkLabel = (url = "") => {
+  const raw = String(url || "").trim();
+  if (!raw) return "";
+
+  try {
+    const parsed = new URL(raw);
+    const cleanedPath = parsed.pathname === "/" ? "" : parsed.pathname;
+    return truncateLink(`${parsed.hostname}${cleanedPath}`);
+  } catch {
+    return truncateLink(raw);
+  }
+};
 
 export default function OwnerUploads() {
   const location = useLocation();
@@ -89,8 +109,23 @@ export default function OwnerUploads() {
                 <td className="px-4 py-1 border-y text-center">
                   {row.song}
                 </td>
-                <td className="px-4 py-3 md:py-1 border-y border-r rounded-r-lg md:border-r-0 md:rounded-r-none text-sm md:text-base max-w-[220px] break-all">
-                  {row.affiliateLink}
+                <td className="px-4 py-3 md:py-1 border-y border-r rounded-r-lg md:border-r-0 md:rounded-r-none text-sm md:text-base">
+                  {row.affiliateLink ? (
+                    <a
+                      href={row.affiliateLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={row.affiliateLink}
+                      className="mx-auto inline-flex max-w-[240px] items-center gap-2 rounded-full border border-black/20 bg-yellow-100 px-3 py-1 text-xs font-medium text-black hover:bg-yellow-200"
+                    >
+                      <span className="truncate">
+                        {formatAffiliateLinkLabel(row.affiliateLink)}
+                      </span>
+                      <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 shrink-0" />
+                    </a>
+                  ) : (
+                    <span className="text-xs text-gray-400">No link</span>
+                  )}
                 </td>
 
                 <td className="hidden md:table-cell px-4 py-1 border-y text-center">

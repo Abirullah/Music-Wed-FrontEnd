@@ -4,7 +4,7 @@ import Input from "../components/Input";
 import Button from "../components/Button"
 import bgImg from "../../../assets/Images/image 34.png";
 import { FcGoogle } from "react-icons/fc";
-import { loginUser } from "../../../src/api/auth";
+import { loginOwner } from "../../../src/api/auth";
 import { setSession } from "../../../src/utils/session";
 
 export default function UserLogin() {
@@ -23,7 +23,7 @@ export default function UserLogin() {
         setLoading(true);
         setError("");
 
-        const response = await loginUser({ email, password });
+        const response = await loginOwner({ email, password });
         const role = String(response.user?.role || response.user?.Role || "").toLowerCase();
         if (!["owner", "admin"].includes(role)) {
           setError("This account is not registered as owner");
@@ -31,7 +31,7 @@ export default function UserLogin() {
         }
 
         setSession({ token: response.token, user: response.user });
-        localStorage.setItem("desktopMode", "true");
+        sessionStorage.setItem("desktopMode", "true");
         navigate("/owner/dashboard");
       } catch (err) {
         setError(err.message || "Invalid email or password");

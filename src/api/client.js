@@ -53,6 +53,8 @@ const shouldHandleUnauthorizedGlobally = (path = "") => {
   const normalizedPath = String(path || "").split("?")[0];
   const publicAuthPaths = new Set([
     "/accounts/login",
+    "/accounts/login/user",
+    "/accounts/login/owner",
     "/accounts/register",
     "/accounts/verify-otp",
   ]);
@@ -62,7 +64,7 @@ const shouldHandleUnauthorizedGlobally = (path = "") => {
 
 export const apiRequest = async (
   path,
-  { method = "GET", body, token, headers = {}, query, timeoutMs } = {},
+  { method = "GET", body, token, headers = {}, query, timeoutMs, signal } = {},
 ) => {
   const authToken = token ?? getAuthToken();
   const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
@@ -72,8 +74,27 @@ export const apiRequest = async (
   );
 
   const controller = typeof AbortController === "function" ? new AbortController() : null;
+  let didTimeout = false;
+  let wasCancelledByUser = false;
+
+  const onExternalAbort = () => {
+    wasCancelledByUser = true;
+    if (controller && !controller.signal.aborted) {
+      controller.abort();
+    }
+  };
+
+  if (signal) {
+    if (signal.aborted) {
+      onExternalAbort();
+    } else if (typeof signal.addEventListener === "function") {
+      signal.addEventListener("abort", onExternalAbort, { once: true });
+    }
+  }
+
   const timeoutHandle = controller
     ? setTimeout(() => {
+        didTimeout = true;
         controller.abort();
       }, requestTimeoutMs)
     : null;
@@ -91,15 +112,31 @@ export const apiRequest = async (
       ...(controller ? { signal: controller.signal } : {}),
     });
   } catch (error) {
-    if (error?.name === "AbortError") {
+    if (wasCancelledByUser || signal?.aborted) {
+      const cancelledError = new Error("Upload cancelled by user");
+      cancelledError.name = "AbortError";
+      cancelledError.code = "UPLOAD_CANCELLED";
+      throw cancelledError;
+    }
+
+    if (error?.name === "AbortError" && didTimeout) {
       throw new Error(
         `Request timed out after ${Math.ceil(requestTimeoutMs / 1000)} seconds`,
       );
     }
 
+    if (error?.name === "AbortError") {
+      const abortedError = new Error("Request was cancelled");
+      abortedError.name = "AbortError";
+      throw abortedError;
+    }
+
     throw error;
   } finally {
     if (timeoutHandle) clearTimeout(timeoutHandle);
+    if (signal && typeof signal.removeEventListener === "function") {
+      signal.removeEventListener("abort", onExternalAbort);
+    }
   }
 
   let payload = null;

@@ -2,19 +2,21 @@ import { apiRequest } from "./client";
 
 const OWNER_UPLOAD_TIMEOUT_MS = 600_000;
 
-export const uploadSong = async (ownerId, payload) => {
+export const uploadSong = async (ownerId, payload, { signal } = {}) => {
   return apiRequest(`/owners/${ownerId}/songs`, {
     method: "POST",
     body: payload,
     timeoutMs: OWNER_UPLOAD_TIMEOUT_MS,
+    signal,
   });
 };
 
-export const uploadContent = async (ownerId, payload) => {
+export const uploadContent = async (ownerId, payload, { signal } = {}) => {
   return apiRequest(`/owners/${ownerId}/contents`, {
     method: "POST",
     body: payload,
     timeoutMs: OWNER_UPLOAD_TIMEOUT_MS,
+    signal,
   });
 };
 

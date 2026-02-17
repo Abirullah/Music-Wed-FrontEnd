@@ -61,7 +61,7 @@ export default function UserSignup() {
       });
 
       setSession({ token: response.token, user: response.user });
-      localStorage.setItem("desktopMode", "true");
+      sessionStorage.setItem("desktopMode", "true");
       navigate("/owner/dashboard");
     } catch (err) {
       setError(err.message || "Signup failed");
