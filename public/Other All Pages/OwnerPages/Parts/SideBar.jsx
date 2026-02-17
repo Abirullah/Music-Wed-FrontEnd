@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { createElement } from "react";
 import {
   HomeIcon,
@@ -6,6 +6,7 @@ import {
   ArrowUpTrayIcon,
   XCircleIcon,
   UserCircleIcon,
+  ArrowLeftOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import { clearSession } from "../../../../src/utils/session";
 
@@ -21,6 +22,8 @@ const menuItems = [
 
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     clearSession();
     window.location.href = "/";
@@ -53,7 +56,15 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="pt-6 mt-6 border-t border-white/10">
+      <div className="pt-6 mt-6 border-t border-white/10 space-y-3">
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10 transition flex items-center justify-center gap-2"
+        >
+          <ArrowLeftOnRectangleIcon className="h-4 w-4" />
+          Back to Home
+        </button>
         <button
           type="button"
           onClick={handleLogout}

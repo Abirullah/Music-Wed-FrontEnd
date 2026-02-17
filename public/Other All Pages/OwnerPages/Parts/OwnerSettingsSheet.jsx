@@ -53,6 +53,17 @@ export default function OwnerSettingsSheet({ open = false, onClose = () => {} })
 
         <button
           type="button"
+          onClick={() => {
+            onClose();
+            navigate("/");
+          }}
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50"
+        >
+          Back to Home
+        </button>
+
+        <button
+          type="button"
           onClick={handleLogout}
           className="w-full rounded-xl bg-gradient-to-r from-[#FFD43B] to-[#E6AF2E] px-4 py-3 text-sm font-semibold text-black shadow-sm hover:opacity-95"
         >

@@ -4,11 +4,13 @@ import Button from "./Button";
 import { Link } from "react-router-dom";
 import { clearSession, getCurrentUser } from "../../src/utils/session";
 
+const PROFILE_TAB_KEY = "UserProfileTab";
+
 export function SideMenu({ openProfileMenu, setCurrentPart }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
 
   function CurrentPage(value) {
-    localStorage.setItem("CurrentPage", value);
+    localStorage.setItem(PROFILE_TAB_KEY, value);
   }
 
   function Logout() {

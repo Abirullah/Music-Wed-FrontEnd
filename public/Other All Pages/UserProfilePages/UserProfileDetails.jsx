@@ -8,6 +8,8 @@ import UserInfo from "./Parts/UserInfo";
 import { SideMenu } from "../../Component/SideMenu";
 import { getAuthToken, getCurrentUser } from "../../../src/utils/session";
 
+const PROFILE_TAB_KEY = "UserProfileTab";
+
 function Purchases() {
   const navigate = useNavigate();
   const currentUser = useMemo(() => getCurrentUser(), []);
@@ -22,7 +24,7 @@ function Purchases() {
 
   const [CurrentPart, setCurrentPart] = useState(() => {
     try {
-      return Number(localStorage.getItem("CurrentPage")) || 0;
+      return Number(localStorage.getItem(PROFILE_TAB_KEY)) || 0;
     } catch {
       return 0;
     }
@@ -68,6 +70,8 @@ function Purchases() {
         ]}
         NavbarFirstChild="py-1"
         setCurrentPaert={setCurrentPart}
+        CurrentPart={CurrentPart}
+        storageKey={PROFILE_TAB_KEY}
       />
 
       <div className="w-full max-w-5xl mx-auto px-4 md:px-0">{content}</div>

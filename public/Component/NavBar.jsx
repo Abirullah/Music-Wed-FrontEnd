@@ -3,6 +3,7 @@ import HerImg from "../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6
 import { SideMenu } from "./SideMenu";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "../../src/utils/session";
+import { reportPiracyByName } from "../../src/api/catalog";
 
 export default function NavBar({
   classes = "",
@@ -13,6 +14,17 @@ export default function NavBar({
 }) {
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [currentUser] = useState(() => getCurrentUser());
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportStatus, setReportStatus] = useState({ type: "", message: "" });
+  const [reportForm, setReportForm] = useState({
+    uploaderName: "",
+    itemName: "",
+    itemType: "all",
+    pincode: "",
+    violationTimeframe: "",
+    details: "",
+  });
 
   const isAuthenticated = Boolean(currentUser);
   const userProfile = currentUser
@@ -26,6 +38,8 @@ export default function NavBar({
         profilePic: HerImg,
         Role: "user",
       };
+  const currentRole = String(currentUser?.role || currentUser?.Role || "").toLowerCase();
+  const canSubmitPiracyComplaint = Boolean(currentUser && !["owner", "admin"].includes(currentRole));
 
   const navigate = useNavigate();
 
@@ -45,8 +59,185 @@ export default function NavBar({
     navigate("/user/login");
   };
 
+  const handleOpenReportModal = () => {
+    if (!currentUser) {
+      navigate("/user/login");
+      return;
+    }
+
+    if (!canSubmitPiracyComplaint) {
+      setReportStatus({
+        type: "error",
+        message: "Please use a user account to submit piracy complaints.",
+      });
+      setReportModalOpen(true);
+      return;
+    }
+
+    setReportStatus({ type: "", message: "" });
+    setReportModalOpen(true);
+  };
+
+  const handleReportSubmit = async (event) => {
+    event.preventDefault();
+    const uploaderName = String(reportForm.uploaderName || "").trim();
+    const itemName = String(reportForm.itemName || "").trim();
+
+    if (!uploaderName || !itemName) {
+      setReportStatus({
+        type: "error",
+        message: "Uploader name and song/content name are required.",
+      });
+      return;
+    }
+
+    try {
+      setReportLoading(true);
+      setReportStatus({ type: "", message: "" });
+      await reportPiracyByName({
+        uploaderName,
+        itemName,
+        itemType: reportForm.itemType,
+        pincode: reportForm.pincode,
+        violationTimeframe: reportForm.violationTimeframe,
+        details: reportForm.details,
+      });
+
+      setReportStatus({
+        type: "success",
+        message: "Complaint submitted successfully.",
+      });
+      setReportForm({
+        uploaderName: "",
+        itemName: "",
+        itemType: "all",
+        pincode: "",
+        violationTimeframe: "",
+        details: "",
+      });
+    } catch (error) {
+      setReportStatus({
+        type: "error",
+        message: error.message || "Failed to submit complaint.",
+      });
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   return (
     <>
+      {reportModalOpen ? (
+        <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-xl rounded-2xl border border-black/10 bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">Report Content Piracy</h2>
+              <button
+                type="button"
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                onClick={() => setReportModalOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleReportSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <input
+                  type="text"
+                  placeholder="Uploader name *"
+                  value={reportForm.uploaderName}
+                  onChange={(event) =>
+                    setReportForm((prev) => ({ ...prev, uploaderName: event.target.value }))
+                  }
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-gray-900"
+                />
+                <input
+                  type="text"
+                  placeholder="Song/Content name *"
+                  value={reportForm.itemName}
+                  onChange={(event) =>
+                    setReportForm((prev) => ({ ...prev, itemName: event.target.value }))
+                  }
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-gray-900"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <select
+                  value={reportForm.itemType}
+                  onChange={(event) =>
+                    setReportForm((prev) => ({ ...prev, itemType: event.target.value }))
+                  }
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-gray-900"
+                >
+                  <option value="all">All</option>
+                  <option value="song">Music</option>
+                  <option value="content">Content</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Pincode"
+                  value={reportForm.pincode}
+                  onChange={(event) =>
+                    setReportForm((prev) => ({ ...prev, pincode: event.target.value }))
+                  }
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-gray-900"
+                />
+                <input
+                  type="text"
+                  placeholder="Violation timeframe"
+                  value={reportForm.violationTimeframe}
+                  onChange={(event) =>
+                    setReportForm((prev) => ({
+                      ...prev,
+                      violationTimeframe: event.target.value,
+                    }))
+                  }
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-gray-900"
+                />
+              </div>
+
+              <textarea
+                placeholder="Describe the issue"
+                value={reportForm.details}
+                onChange={(event) =>
+                  setReportForm((prev) => ({ ...prev, details: event.target.value }))
+                }
+                className="h-28 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-gray-900"
+              />
+
+              {reportStatus.message ? (
+                <p
+                  className={`text-sm font-medium ${
+                    reportStatus.type === "success" ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {reportStatus.message}
+                </p>
+              ) : null}
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setReportModalOpen(false)}
+                  className="w-full rounded-xl border border-gray-300 bg-white py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={reportLoading || !canSubmitPiracyComplaint}
+                  className="w-full rounded-xl bg-black py-3 text-sm font-semibold text-white hover:bg-gray-900 disabled:cursor-not-allowed disabled:bg-gray-500"
+                >
+                  {reportLoading ? "Submitting..." : "Submit Complaint"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
       {openProfileMenu && (
         <div className="z-[102]">
           <SideMenu
@@ -111,6 +302,8 @@ export default function NavBar({
           >
             {/* REPORT BUTTON */}
             <button
+              type="button"
+              onClick={handleOpenReportModal}
               className={`
                 px-2 py-1
                 sm:px-3 sm:py-2

@@ -51,37 +51,38 @@ export default function OwnerPrivacyAndContent() {
       {loading ? <p className="mb-3 text-sm text-gray-500">Loading complaints...</p> : null}
       {error ? <p className="mb-3 text-sm text-red-500">{error}</p> : null}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-3">
-          <thead className="bg-gray-100">
-            <tr className="text-gray-400">
-              <th className="px-4 py-4 mb-5 font-semibold text-center">Type</th>
-              <th className="px-4 py-4 mb-5 font-semibold text-center">Song name</th>
-              <th className="px-4 py-4 mb-5 font-semibold text-center">Date &amp; time</th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 font-semibold text-center">Pincode</th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 font-semibold max-w-[150px] break-all text-center">
-                Time frame of copyright violation
-              </th>
+      <div className="overflow-x-auto rounded-2xl border border-black/10 bg-white shadow-sm">
+        <table className="w-full min-w-[920px] text-left">
+          <thead>
+            <tr className="border-b border-black/10 bg-gradient-to-r from-black to-gray-800 text-xs uppercase tracking-wide text-white">
+              <th className="px-4 py-4">Type</th>
+              <th className="px-4 py-4">Song/Content</th>
+              <th className="px-4 py-4">Uploader</th>
+              <th className="px-4 py-4">Reported by</th>
+              <th className="px-4 py-4">Date &amp; time</th>
+              <th className="px-4 py-4">Pincode</th>
+              <th className="px-4 py-4">Violation window</th>
             </tr>
           </thead>
 
           <tbody>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <tr
                 key={row.id}
-                className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className={`border-b border-black/5 text-sm ${index % 2 === 0 ? "bg-white" : "bg-yellow-50/40"}`}
               >
-                <td className="px-4 first:rounded-l-lg border-y border-l text-center">{row.type}</td>
-                <td className="px-4 py-1 border-y text-center">{row.song}</td>
-                <td className="px-4 py-3 md:py-1 border-y border-r rounded-r-lg md:border-r-0 md:rounded-r-none text-sm md:text-base text-center whitespace-nowrap">
-                  {row.complaint}
+                <td className="px-4 py-3 font-semibold text-black">{row.type}</td>
+                <td className="px-4 py-3 text-gray-700">{row.song}</td>
+                <td className="px-4 py-3 text-gray-700">{row.uploaderName || "-"}</td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-800">{row.reporterName || "-"}</span>
+                    <span className="text-xs text-gray-500">{row.reporterEmail || "-"}</span>
+                  </div>
                 </td>
-
-                <td className="hidden md:table-cell px-4 py-1 border-y text-center">{row.pincode}</td>
-
-                <td className="hidden md:table-cell px-4 py-1 last:rounded-r-lg border-y border-r text-center">
-                  {row.timeofframe}
-                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{row.complaint}</td>
+                <td className="px-4 py-3 text-gray-700">{row.pincode}</td>
+                <td className="px-4 py-3 text-gray-700">{row.timeofframe}</td>
               </tr>
             ))}
           </tbody>

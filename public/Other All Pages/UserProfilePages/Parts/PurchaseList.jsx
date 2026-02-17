@@ -39,6 +39,7 @@ export default function PurchaseList() {
             genres: purchase.item?.genre || "-",
             mood: purchase.item?.mood || "-",
             artists: purchase.item?.artist || "-",
+            audioSrc: purchase.item?.previewUrl || "",
             link: "Download",
           })),
         );

@@ -4,10 +4,10 @@ import { fetchOwnerStatements } from "../../../src/api/owner";
 import { getCurrentUser } from "../../../src/utils/session";
 
 const formatCurrency = (value = 0) => {
-  return new Intl.NumberFormat("en-IN", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
+    currency: "USD",
+    maximumFractionDigits: 2,
   }).format(value || 0);
 };
 
@@ -105,49 +105,41 @@ const OwnerStatement = () => {
         ))}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-3">
-          <thead className="bg-gray-100">
-            <tr className="text-gray-400">
-              <th className="px-4 py-4 mb-5 font-normal">Date</th>
-              <th className="px-4 py-4 mb-5 font-normal">Music name</th>
-              <th className="px-4 py-4 mb-5 font-normal">Customer name</th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 font-normal">Time</th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 font-normal">Licence code</th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 text-center font-normal">Valid date</th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 text-right font-normal">Total</th>
+      <div className="overflow-x-auto rounded-2xl border border-black/10 bg-white shadow-sm">
+        <table className="w-full min-w-[960px] text-left">
+          <thead>
+            <tr className="border-b border-black/10 bg-gradient-to-r from-black to-gray-800 text-xs uppercase tracking-wide text-white">
+              <th className="px-4 py-4">Date</th>
+              <th className="px-4 py-4">Music name</th>
+              <th className="px-4 py-4">Customer</th>
+              <th className="px-4 py-4">Time</th>
+              <th className="px-4 py-4">Licence code</th>
+              <th className="px-4 py-4 text-center">Valid date</th>
+              <th className="px-4 py-4 text-right">Total</th>
             </tr>
           </thead>
 
           <tbody>
-            {transactions.map((row) => (
+            {transactions.map((row, index) => (
               <tr
                 key={row.id}
-                className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className={`border-b border-black/5 text-sm ${index % 2 === 0 ? "bg-white" : "bg-yellow-50/40"}`}
               >
-                <td className="px-4 py-3 md:py-1 first:rounded-l-lg border-y border-l whitespace-nowrap">
-                  {row.date}
-                </td>
-                <td className="px-4 py-3 md:py-1 border-y">
-                  <div className="text-sm font-medium">{row.music}</div>
-                </td>
-                <td className="px-4 py-3 md:py-1 border-y border-r rounded-r-lg md:border-r-0 md:rounded-r-none">
-                  {row.customer}
-                </td>
-                <td className="hidden md:table-cell px-4 py-1 border-y whitespace-nowrap">{row.time}</td>
-                <td className="hidden md:table-cell px-4 py-1 border-y">{row.code}</td>
-                <td className="hidden md:table-cell px-4 py-1 border-y text-center whitespace-nowrap">
+                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{row.date}</td>
+                <td className="px-4 py-3 font-medium text-gray-900">{row.music}</td>
+                <td className="px-4 py-3 text-gray-700">{row.customer}</td>
+                <td className="px-4 py-3 whitespace-nowrap text-gray-700">{row.time}</td>
+                <td className="px-4 py-3 font-mono text-xs text-gray-700">{row.code}</td>
+                <td className="px-4 py-3 text-center whitespace-nowrap">
                   {row.status === "expired" ? (
-                    <span className="bg-red-50 text-red-500 px-3 py-1 rounded-md text-sm font-bold">
+                    <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-500">
                       Expired
                     </span>
                   ) : (
                     <span className="text-gray-700">{row.valid}</span>
                   )}
                 </td>
-                <td className="hidden md:table-cell px-4 py-1 last:rounded-r-lg border-y border-r text-right font-bold text-gray-800">
-                  {row.total}
-                </td>
+                <td className="px-4 py-3 text-right font-bold text-gray-900">{row.total}</td>
               </tr>
             ))}
           </tbody>

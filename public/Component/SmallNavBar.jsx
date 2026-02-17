@@ -5,9 +5,10 @@ function SmallNavBar({
   classes = "",
   setCurrentPaert,
   CurrentPart,
+  storageKey = "CurrentPage",
 }) {
   const [active, setActive] = useState(() => {
-    const savedPage = Number(localStorage.getItem("CurrentPage")) || 0;
+    const savedPage = Number(localStorage.getItem(storageKey)) || 0;
     return typeof CurrentPart === "number" ? CurrentPart : savedPage;
   });
   const tabRefs = useRef([]);
@@ -42,7 +43,7 @@ function SmallNavBar({
               ref={(el) => (tabRefs.current[index] = el)}
               onClick={() => {
                 setActive(index);
-                localStorage.setItem("CurrentPage", String(index));
+                localStorage.setItem(storageKey, String(index));
                 if (setCurrentPaert) setCurrentPaert(index);
               }}
               className={`

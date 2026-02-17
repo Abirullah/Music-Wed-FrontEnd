@@ -20,8 +20,8 @@ export const uploadContent = async (ownerId, payload, { signal } = {}) => {
   });
 };
 
-export const fetchOwnerDashboard = async (ownerId) => {
-  return apiRequest(`/owners/${ownerId}/dashboard`);
+export const fetchOwnerDashboard = async (ownerId, query = {}) => {
+  return apiRequest(`/owners/${ownerId}/dashboard`, { query });
 };
 
 export const fetchOwnerUploads = async (ownerId, query = {}) => {

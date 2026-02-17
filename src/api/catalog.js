@@ -18,3 +18,14 @@ export const reportPiracy = async (itemType, itemId, payload) => {
     body: payload,
   });
 };
+
+export const reportPiracyByName = async (payload) => {
+  return apiRequest("/catalog/report-piracy", {
+    method: "POST",
+    body: payload,
+  });
+};
+
+export const fetchTopOwnerInsights = async (query = {}) => {
+  return apiRequest("/catalog/top-owner-insights", { query });
+};

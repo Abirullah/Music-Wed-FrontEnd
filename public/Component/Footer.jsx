@@ -2,7 +2,14 @@ import React from "react";
 import SearchBar from "./SearchBar";
 import { Instagram, x, Email } from "../../assets/Icons/IconExporter";
 
-export default function Footer() {
+export default function Footer({
+  searchValue = "",
+  onSearchChange,
+  onSearchSubmit,
+  searchSuggestions = [],
+  searchSuggestionsLoading = false,
+  onSearchSuggestionSelect,
+}) {
   return (
     <footer className="w-full bg-black text-white">
       {/* TOP SECTION */}
@@ -68,11 +75,16 @@ export default function Footer() {
         {/* Search */}
         <div className="flex justify-center  w-full">
            <SearchBar
-                        classess="w-full h-15 rounded-full bg-white px-4 max-w-2xl"
-                        placeholder="Search"
-                        ButtonInfo="w-14 h-12"
-          
-                      />
+              classess="w-full h-15 rounded-full bg-white px-4 max-w-2xl"
+              placeholder="Search"
+              ButtonInfo="w-14 h-12"
+              value={searchValue}
+              onChange={onSearchChange}
+              onSubmit={onSearchSubmit}
+              suggestions={searchSuggestions}
+              suggestionsLoading={searchSuggestionsLoading}
+              onSuggestionSelect={onSearchSuggestionSelect}
+            />
         </div>
 
         {/* Bottom Links + Copyright */}

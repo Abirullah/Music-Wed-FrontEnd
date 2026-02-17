@@ -142,13 +142,30 @@ export default function OwnerAccountSettings() {
 
         <h1 className="text-base font-semibold text-gray-900">Account settings</h1>
 
-        <div className="h-10 w-10" />
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="inline-flex h-10 items-center justify-center rounded-full px-3 text-xs font-semibold text-gray-700 hover:bg-white"
+        >
+          Home
+        </button>
       </div>
 
       <form
         onSubmit={validateAndSave}
         className="w-full rounded-2xl bg-white p-4 sm:p-6 md:p-8 shadow-sm border border-gray-100"
       >
+        <div className="hidden lg:flex items-center justify-end mb-4">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-100"
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+            Back to Home
+          </button>
+        </div>
+
         <div className="flex items-center gap-5 mb-8">
           <img
             src={profilePic || Img}
@@ -252,7 +269,7 @@ export default function OwnerAccountSettings() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full max-w-2xl sm:w-auto sm:flex-1 rounded-xl bg-gradient-to-r from-[#FFD43B] to-[#E6AF2E] py-3 text-sm  md:text-xl font-semibold text-black shadow-sm hover:opacity-95"
+            className="w-full max-w-2xl sm:w-auto sm:flex-1 rounded-xl border border-black bg-black py-3 text-sm md:text-lg font-semibold text-white shadow-sm transition hover:bg-gray-900"
           >
             {saving ? "Saving..." : "Save changes"}
           </button>
@@ -260,7 +277,7 @@ export default function OwnerAccountSettings() {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full max-w-2xl sm:w-auto sm:flex-1 rounded-xl bg-gradient-to-r from-red-600/85 to-red-700/75 py-3 text-sm  md:text-xl font-semibold text-black shadow-sm hover:opacity-95"
+            className="w-full max-w-2xl sm:w-auto sm:flex-1 rounded-xl border border-red-200 bg-red-50 py-3 text-sm md:text-lg font-semibold text-red-700 shadow-sm transition hover:bg-red-100"
           >
             Log out
           </button>

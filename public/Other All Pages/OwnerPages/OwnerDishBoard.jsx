@@ -6,6 +6,12 @@ import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { fetchOwnerDashboard } from "../../../src/api/owner";
 import { getCurrentUser } from "../../../src/utils/session";
 
+const formatCurrencyUsd = (value = 0) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(value || 0);
 
 
 
@@ -15,6 +21,8 @@ export default function DashboardHome() {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [graphType, setGraphType] = useState("all");
+  const [graphYear, setGraphYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -26,7 +34,10 @@ export default function DashboardHome() {
 
       try {
         setLoading(true);
-        const response = await fetchOwnerDashboard(currentUser.id);
+        const response = await fetchOwnerDashboard(currentUser.id, {
+          type: graphType,
+          year: graphYear,
+        });
         setDashboard(response);
       } catch (err) {
         setError(err.message || "Failed to load dashboard");
@@ -36,7 +47,15 @@ export default function DashboardHome() {
     };
 
     loadDashboard();
-  }, [currentUser?.id]);
+  }, [currentUser?.id, graphType, graphYear]);
+
+  useEffect(() => {
+    const years = dashboard?.graph?.availableYears;
+    if (!Array.isArray(years) || !years.length) return;
+    if (!years.includes(graphYear)) {
+      setGraphYear(years[years.length - 1]);
+    }
+  }, [dashboard?.graph?.availableYears, graphYear]);
 
   const ownerName = dashboard?.owner?.name || currentUser?.fullName || "Owner";
   const ownerAvatar = dashboard?.owner?.profilePicture || currentUser?.profilePicture || Img;
@@ -45,6 +64,12 @@ export default function DashboardHome() {
   const contentUploaded = dashboard?.stats?.contentUploaded || 0;
   const recentUploads = dashboard?.recentUploads || [];
   const latestUpload = recentUploads[0];
+  const graph = dashboard?.graph || {};
+  const graphLabels = Array.isArray(graph.labels) && graph.labels.length ? graph.labels : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const graphSeries = Array.isArray(graph.series) && graph.series.length ? graph.series : [0, 0, 0, 0, 0, 0];
+  const yearOptions = Array.isArray(graph.availableYears) && graph.availableYears.length
+    ? graph.availableYears
+    : [new Date().getFullYear()];
 
   return (
 	    <div className="mx-auto w-full max-w-md lg:max-w-none flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-8 lg:items-start">
@@ -182,29 +207,54 @@ export default function DashboardHome() {
           <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
             <h3 className="text-lg font-bold">Statements</h3>
 
-           
-              <select className="border rounded-xl px-3 py-2 text-sm bg-white">
-                <option>All</option>
+            <div className="flex items-center gap-2">
+              <select
+                value={graphType}
+                onChange={(event) => setGraphType(event.target.value)}
+                className="border rounded-xl px-3 py-2 text-sm bg-white"
+              >
+                <option value="all">All</option>
+                <option value="content">Content</option>
+                <option value="song">Song</option>
               </select>
 
-              <select className="border rounded-xl px-3 py-2 text-sm bg-white">
-                <option>2024</option>   
+              <select
+                value={graphYear}
+                onChange={(event) => setGraphYear(Number(event.target.value))}
+                className="border rounded-xl px-3 py-2 text-sm bg-white"
+              >
+                {yearOptions.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
               </select>
 
-              <button className="font-semibold text-blue-500 text-sm">
+              <button
+                type="button"
+                onClick={() => navigate("/owner/statement")}
+                className="font-semibold text-blue-500 text-sm"
+              >
                 Explore
               </button>
+            </div>
           </div>
 
 	          <div className="flex gap-4 lg:gap-5 items-start">
             {/* Chart */}
             <div className="w-[70%] lg:w-[80%]">
 	              <LineChart
-	                labels={["Jan", "Feb", "Mar", "Apr", "May", "Jun"]}
-	                series={[8, 6, 10, 9, 13, 12]}
-	                highlightLabel="Music & content"
-	                highlightValue={String(musicUploaded + contentUploaded)}
-	                highlightIndex={2}
+	                labels={graphLabels}
+	                series={graphSeries}
+	                highlightLabel={
+                    graphType === "song"
+                      ? "Song sales"
+                      : graphType === "content"
+                      ? "Content sales"
+                      : "Music & content sales"
+                  }
+	                highlightValue={formatCurrencyUsd(graph.totalAmount || 0)}
+	                highlightIndex={Math.max(0, Math.min(graphLabels.length - 1, 5))}
 	              />
             </div>
 
@@ -212,7 +262,7 @@ export default function DashboardHome() {
 	            <div className="grid grid-cols-1 gap-3 w-[30%] lg:w-[18%]">
 	              <Summary
 	                label="Music & Content"
-	                value={String(musicUploaded + contentUploaded)}
+	                value={String((dashboard?.stats?.totalSales || 0))}
 	              />
 	              <Summary
 	                label="Music"

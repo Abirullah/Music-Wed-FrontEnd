@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import Button from "../../../Component/Button";
 import Input from "../../../Component/Input";
 import Img from "../../../../assets/Images/884531c964349945a6416899b65cf3c56f245ba6.jpg";
 import { updateAccount } from "../../../../src/api/auth";
@@ -20,6 +19,11 @@ export default function UserInfo() {
   const handleImageUpload = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (file.size > 12 * 1024 * 1024) {
+      setStatus("Please upload an image smaller than 12MB.");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = () => setProfilePicture(String(reader.result || ""));
@@ -90,15 +94,17 @@ export default function UserInfo() {
         <div>
           <h3 className="font-bold">Profile Picture</h3>
           <p className="text-xs text-gray-500 mb-1">Recommended memory size is less than 12MB</p>
-          <label className="inline-flex cursor-pointer">
-            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-            <Button
-              text="Upload"
-              bg="bg-black md:w-full px-10 sm:px-10 py-1"
-              textColor="text-white"
-              textSize="text-base sm:text-lg font-bold"
-              rounded="rounded-sm shadow-black shadow-sm"
+          <label htmlFor="user-profile-image-upload" className="inline-flex cursor-pointer">
+            <input
+              id="user-profile-image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
             />
+            <span className="inline-flex items-center justify-center rounded-sm bg-black px-10 py-1 text-base font-bold text-white shadow-black shadow-sm hover:opacity-90">
+              Upload
+            </span>
           </label>
         </div>
       </div>

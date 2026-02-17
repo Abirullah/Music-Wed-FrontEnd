@@ -77,50 +77,36 @@ export default function OwnerUploads() {
       {loading ? <p className="text-sm text-gray-500 mb-3">Loading uploads...</p> : null}
       {error ? <p className="text-sm text-red-500 mb-3">{error}</p> : null}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-3">
-          <thead className="bg-gray-100">
-            <tr className="text-gray-400">
-              <th className="px-4 py-4 mb-5 font-normal text-center">Type</th>
-              <th className="px-4 py-4 mb-5 font-normal text-center">
-                Song name
-              </th>
-              <th className="px-4 py-4 mb-5 font-normal text-center">
-                Affiliate Link
-              </th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 font-normal text-center">
-                Artist Name
-              </th>
-              <th className="hidden md:table-cell px-4 py-4 mb-5 font-normal text-center">
-                Copyright Owner
-              </th>
+      <div className="overflow-x-auto rounded-2xl border border-black/10 bg-white shadow-sm">
+        <table className="w-full min-w-[860px] text-left">
+          <thead>
+            <tr className="border-b border-black/10 bg-gradient-to-r from-black to-gray-800 text-xs uppercase tracking-wide text-white">
+              <th className="px-4 py-4 text-center">Type</th>
+              <th className="px-4 py-4 text-center">Song name</th>
+              <th className="px-4 py-4 text-center">Affiliate Link</th>
+              <th className="px-4 py-4 text-center">Artist Name</th>
+              <th className="px-4 py-4 text-center">Copyright Owner</th>
             </tr>
           </thead>
 
           <tbody>
-            {uploads.map((row) => (
+            {uploads.map((row, index) => (
               <tr
                 key={row.id}
-                className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className={`border-b border-black/5 text-sm ${index % 2 === 0 ? "bg-white" : "bg-yellow-50/40"}`}
               >
-                <td className="px-4 first:rounded-l-lg border-y border-l text-center">
-                  {row.type}
-                </td>
-                <td className="px-4 py-1 border-y text-center">
-                  {row.song}
-                </td>
-                <td className="px-4 py-3 md:py-1 border-y border-r rounded-r-lg md:border-r-0 md:rounded-r-none text-sm md:text-base">
+                <td className="px-4 py-3 text-center font-semibold text-gray-800">{row.type}</td>
+                <td className="px-4 py-3 text-center font-medium text-gray-900">{row.song}</td>
+                <td className="px-4 py-3 text-center">
                   {row.affiliateLink ? (
                     <a
                       href={row.affiliateLink}
                       target="_blank"
                       rel="noreferrer"
                       title={row.affiliateLink}
-                      className="mx-auto inline-flex max-w-[240px] items-center gap-2 rounded-full border border-black/20 bg-yellow-100 px-3 py-1 text-xs font-medium text-black hover:bg-yellow-200"
+                      className="mx-auto inline-flex max-w-[280px] items-center gap-2 rounded-full border border-black/20 bg-yellow-100 px-3 py-1 text-xs font-medium text-black hover:bg-yellow-200"
                     >
-                      <span className="truncate">
-                        {formatAffiliateLinkLabel(row.affiliateLink)}
-                      </span>
+                      <span className="truncate">{formatAffiliateLinkLabel(row.affiliateLink)}</span>
                       <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 shrink-0" />
                     </a>
                   ) : (
@@ -128,13 +114,9 @@ export default function OwnerUploads() {
                   )}
                 </td>
 
-                <td className="hidden md:table-cell px-4 py-1 border-y text-center">
-                  {row.artistName}
-                </td>
+                <td className="px-4 py-3 text-center text-gray-700">{row.artistName}</td>
 
-                <td className="hidden md:table-cell px-4 py-1 last:rounded-r-lg border-y border-r text-center">
-                  {row.copyrightOwner}
-                </td>
+                <td className="px-4 py-3 text-center text-gray-700">{row.copyrightOwner}</td>
               </tr>
             ))}
           </tbody>

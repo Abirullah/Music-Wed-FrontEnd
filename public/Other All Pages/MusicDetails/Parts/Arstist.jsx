@@ -240,21 +240,14 @@ function Arstist() {
               )}
               <div className="w-full relative shadow-sm shadow-black overflow-hidden px-5 py-5">
                 <button
-                  className="flex absolute cursor-pointer z-3 top-9 items-center gap-5 left-1 text-xl hover:opacity-80"
+                  type="button"
+                  className="absolute left-4 top-6 z-10 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-100"
                   onClick={() => setopenDetailsPage(false)}
                 >
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="black"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M15 18l-6-6 6-6" />
                   </svg>
+                  Back
                 </button>
 
                 <ReusableList

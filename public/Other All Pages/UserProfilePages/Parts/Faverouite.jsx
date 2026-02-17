@@ -43,6 +43,7 @@ export default function Faverouite() {
             genres: item.genre,
             mood: item.mood,
             artists: item.artist,
+            audioSrc: item.previewUrl || "",
           })),
         );
       } finally {
