@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
 import StepperPills from "../Parts/StepperPills";
 import MobileBottomSheet from "../Parts/MobileBottomSheet";
+import UploadProgressPopup from "../Parts/UploadProgressPopup";
 import { uploadSong } from "../../../../src/api/owner";
 import { getAuthToken, getCurrentUser } from "../../../../src/utils/session";
 
@@ -55,6 +56,8 @@ export default function UploadASong() {
   const [noteOpen, setNoteOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadMessage, setUploadMessage] = useState("Uploading...");
   const [musicFile, setMusicFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
 
@@ -186,6 +189,31 @@ export default function UploadASong() {
     localStorage.setItem("uploadCompleted", JSON.stringify(newCompleted));
   };
 
+  // Simulate progress while uploading
+  useEffect(() => {
+    if (submitting) {
+      setUploadProgress(0);
+      setUploadMessage("Preparing files...");
+      
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            setUploadMessage("Finalizing upload...");
+            return prev;
+          }
+          if (prev >= 60) {
+            setUploadMessage("Uploading to cloud...");
+          } else if (prev >= 30) {
+            setUploadMessage("Processing files...");
+          }
+          return prev + 5;
+        });
+      }, 500);
+
+      return () => clearInterval(interval);
+    }
+  }, [submitting]);
+
   const handleFinalSubmit = async () => {
     const currentUser = getCurrentUser();
     const authToken = getAuthToken();
@@ -210,6 +238,8 @@ export default function UploadASong() {
     try {
       setSubmitting(true);
       setSubmitError("");
+      setUploadProgress(10);
+      setUploadMessage("Starting upload...");
 
       const payload = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -230,18 +260,30 @@ export default function UploadASong() {
         payload.set("coverFile", coverFile);
       }
 
+      setUploadProgress(20);
+      setUploadMessage("Uploading files...");
+
       await uploadSong(currentUser.id, payload);
+
+      setUploadProgress(100);
+      setUploadMessage("Upload complete!");
 
       localStorage.removeItem("uploadedSong");
       localStorage.removeItem("uploadCompleted");
 
-      navigate("/owner/upload", {
-        state: { uploadSuccess: "music" },
-      });
+      // Small delay to show 100% completion
+      setTimeout(() => {
+        navigate("/owner/upload", {
+          state: { uploadSuccess: "music" },
+        });
+      }, 500);
     } catch (error) {
       setSubmitError(error.message || "Song upload failed");
+      setUploadProgress(0);
     } finally {
-      setSubmitting(false);
+      setTimeout(() => {
+        setSubmitting(false);
+      }, 500);
     }
   };
 
@@ -418,6 +460,12 @@ export default function UploadASong() {
         Since our customers buy licence for each song, we suggest you to set an
         affordable price.
       </MobileBottomSheet>
+
+      <UploadProgressPopup
+        open={submitting}
+        progress={uploadProgress}
+        message={uploadMessage}
+      />
     </div>
   );
 }

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, LightBulbIcon } from "@heroicons/react/24/outline";
 import Input from "../../../Component/Input";
 import StepperPills from "../Parts/StepperPills";
 import MobileBottomSheet from "../Parts/MobileBottomSheet";
+import UploadProgressPopup from "../Parts/UploadProgressPopup";
 import { uploadContent } from "../../../../src/api/owner";
 import { getAuthToken, getCurrentUser } from "../../../../src/utils/session";
 
@@ -48,6 +49,8 @@ export default function UploadAContent() {
   const [noteOpen, setNoteOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadMessage, setUploadMessage] = useState("Uploading...");
   const [contentFile, setContentFile] = useState(null);
   const [coverTemplateFile, setCoverTemplateFile] = useState(null);
   const [formData, setFormData] = useState(() => {
@@ -186,6 +189,31 @@ export default function UploadAContent() {
     };
   };
 
+  // Simulate progress while uploading
+  useEffect(() => {
+    if (submitting) {
+      setUploadProgress(0);
+      setUploadMessage("Preparing files...");
+      
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            setUploadMessage("Finalizing upload...");
+            return prev;
+          }
+          if (prev >= 60) {
+            setUploadMessage("Uploading to cloud...");
+          } else if (prev >= 30) {
+            setUploadMessage("Processing files...");
+          }
+          return prev + 5;
+        });
+      }, 500);
+
+      return () => clearInterval(interval);
+    }
+  }, [submitting]);
+
   const handleFinalSubmit = async () => {
     const currentUser = getCurrentUser();
     const authToken = getAuthToken();
@@ -210,6 +238,8 @@ export default function UploadAContent() {
     try {
       setSubmitting(true);
       setSubmitError("");
+      setUploadProgress(10);
+      setUploadMessage("Starting upload...");
 
       const payload = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -224,18 +254,30 @@ export default function UploadAContent() {
         payload.set("coverTemplateFile", coverTemplateFile);
       }
 
+      setUploadProgress(20);
+      setUploadMessage("Uploading files...");
+
       await uploadContent(currentUser.id, payload);
+
+      setUploadProgress(100);
+      setUploadMessage("Upload complete!");
 
       localStorage.removeItem("uploadContent");
       localStorage.removeItem("uploadContentCompleted");
 
-      navigate("/owner/upload", {
-        state: { uploadSuccess: "content" },
-      });
+      // Small delay to show 100% completion
+      setTimeout(() => {
+        navigate("/owner/upload", {
+          state: { uploadSuccess: "content" },
+        });
+      }, 500);
     } catch (error) {
       setSubmitError(error.message || "Content upload failed");
+      setUploadProgress(0);
     } finally {
-      setSubmitting(false);
+      setTimeout(() => {
+        setSubmitting(false);
+      }, 500);
     }
   };
 
@@ -403,6 +445,12 @@ export default function UploadAContent() {
       <MobileBottomSheet open={noteOpen} title="Note" onClose={() => setNoteOpen(false)}>
         Any headings without prices will not be displayed to your customers.
       </MobileBottomSheet>
+
+      <UploadProgressPopup
+        open={submitting}
+        progress={uploadProgress}
+        message={uploadMessage}
+      />
     </div>
   );
 }
