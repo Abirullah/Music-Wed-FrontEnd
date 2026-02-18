@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FilterMenu from "../../../Component/FilterMenu";
@@ -25,7 +25,7 @@ const buildFilterSections = (options = {}) => [
   { name: "Language", key: "language", options: options.language || [] },
 ];
 
-function Contant() {
+function Contant({ autoPreviewTarget = null, onAutoPreviewConsumed = () => {} }) {
   const navigate = useNavigate();
   const [openPreview, setOpenPreview] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -48,6 +48,19 @@ function Contant() {
   );
 
   const filters = useMemo(() => buildFilterSections(filterOptions), [filterOptions]);
+  const previewId = String(autoPreviewTarget?.id || "");
+  const previewType = String(autoPreviewTarget?.itemType || "").toLowerCase();
+
+  useEffect(() => {
+    if (!previewId || previewType !== "content" || !data.length) return;
+
+    const matched = data.find((item) => String(item.id) === previewId);
+    if (!matched) return;
+
+    setSelectedItem(matched);
+    setOpenPreview(true);
+    onAutoPreviewConsumed();
+  }, [data, onAutoPreviewConsumed, previewId, previewType]);
 
   const handleOpenPreview = (item) => {
     setSelectedItem(item);

@@ -162,6 +162,17 @@ export default function HomePage() {
       state: previewItem ? { targetTab, previewItem } : { targetTab },
     });
   };
+  const heroNavTrail = useMemo(
+    () => [
+      { left: "28%", delay: 0.0, duration: 6.2, size: 24, drift: -22, rise: 60, opacity: 0.82 },
+      { left: "36%", delay: 1.1, duration: 6.8, size: 20, drift: 16, rise: 66, opacity: 0.74 },
+      { left: "44%", delay: 0.6, duration: 6.5, size: 22, drift: -12, rise: 63, opacity: 0.78 },
+      { left: "52%", delay: 1.9, duration: 7.1, size: 26, drift: 20, rise: 68, opacity: 0.72 },
+      { left: "60%", delay: 1.4, duration: 6.6, size: 23, drift: -18, rise: 64, opacity: 0.76 },
+      { left: "68%", delay: 2.2, duration: 7.3, size: 21, drift: 12, rise: 70, opacity: 0.68 },
+    ],
+    [],
+  );
 
   return (
     <>
@@ -176,12 +187,36 @@ export default function HomePage() {
           bgImg={heroScrolled ? NavImg : null}
           buttonclass="text-white bg-black/30 hover:bg-black/50"
         />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[72vh] md:h-[88vh] overflow-hidden"
+        >
+          {heroNavTrail.map((note, index) => (
+            <span
+              key={`hero-note-${index}`}
+              className="hero-nav-note"
+              style={{
+                left: note.left,
+                fontSize: `${note.size}px`,
+                animationDelay: `${note.delay}s`,
+                animationDuration: `${note.duration}s`,
+                "--hero-note-drift": `${note.drift}px`,
+                "--hero-note-rise": `${note.rise}vh`,
+                "--hero-note-opacity": String(note.opacity),
+              }}
+            >
+              <svg viewBox="0 0 24 24" className="h-[1em] w-[1em]" fill="currentColor">
+                <path d="M15 3.5a1 1 0 0 0-1 1V13.6a3.75 3.75 0 1 0 1.5 3v-7.2l4.1-1.06A1 1 0 0 0 20.4 7V3.8a1 1 0 0 0-1.26-.97L15 3.92V3.5Zm-8.6 12.1a2.25 2.25 0 1 1 0 4.5 2.25 2.25 0 0 1 0-4.5Zm10.1-1.6V5.17l2.4-.61v2.12L16.5 7.3V14Z" />
+              </svg>
+            </span>
+          ))}
+        </div>
 
         <div
           className="md:min-h-[90vh] min-h-[60vh] bg-cover bg-center flex flex-col justify-center items-center px-4"
           style={{ backgroundImage: `url(${HeroImg})` }}
         >
-          <div className="flex flex-col mt-15 md:mt-0 gap-2 mx-auto mb-20">
+          <div className="relative z-30 flex flex-col mt-15 md:mt-0 gap-2 mx-auto mb-20">
             <h1 className="text-white font-bold text-center text-3xl sm:text-3xl md:text-5xl">
               {activeHero.title}
             </h1>

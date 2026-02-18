@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FilterMenu from "../../../Component/FilterMenu";
@@ -26,12 +26,12 @@ const buildFilterSections = (options = {}) => [
   { name: "Language", key: "language", options: options.language || [] },
 ];
 
-function Music() {
+function Music({ autoPreviewTarget = null, onAutoPreviewConsumed = () => {} }) {
   const navigate = useNavigate();
   const [openPreview, setOpenPreview] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const { currentTrack, isPlaying, toggle } = useAudioPlayer();
+  const { currentTrack, isPlaying, toggle, playTrack } = useAudioPlayer();
 
   const { items, filterOptions, selectedFilters, toggleFilter, search, setSearch, loading, error } =
     useCatalog({ type: "song" });
@@ -51,6 +51,24 @@ function Music() {
   );
 
   const filters = useMemo(() => buildFilterSections(filterOptions), [filterOptions]);
+  const previewId = String(autoPreviewTarget?.id || "");
+  const previewType = String(autoPreviewTarget?.itemType || "").toLowerCase();
+
+  useEffect(() => {
+    if (!previewId || previewType !== "song" || !data.length) return;
+
+    const matched = data.find((item) => String(item.id) === previewId);
+    if (!matched) return;
+
+    setSelectedItem(matched);
+    setOpenPreview(true);
+
+    if (matched.audioSrc) {
+      playTrack(matched).catch(() => {});
+    }
+
+    onAutoPreviewConsumed();
+  }, [data, onAutoPreviewConsumed, playTrack, previewId, previewType]);
 
   const handleOpenPreview = (item) => {
     setSelectedItem(item);

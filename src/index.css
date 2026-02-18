@@ -1,1 +1,40 @@
 @import "tailwindcss";
+
+.hero-nav-note {
+  position: absolute;
+  bottom: clamp(90px, 17vh, 185px);
+  color: rgb(255 231 153 / 85%);
+  opacity: 0;
+  transform: translate3d(0, 0, 0) scale(0.55) rotate(-12deg);
+  filter: drop-shadow(0 8px 16px rgb(255 212 59 / 35%));
+  animation-name: heroNoteRiseToNav;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes heroNoteRiseToNav {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.5) rotate(-12deg);
+  }
+  8% {
+    opacity: 0.72;
+  }
+  74% {
+    opacity: var(--hero-note-opacity, 0.78);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--hero-note-drift, 0px), calc(-1 * var(--hero-note-rise, 64vh)), 0)
+      scale(1.12)
+      rotate(10deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-nav-note {
+    animation: none;
+    opacity: 0;
+  }
+}

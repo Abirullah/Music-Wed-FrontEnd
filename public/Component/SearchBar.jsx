@@ -81,7 +81,7 @@ export default function SearchBar({
       <button
         type="button"
         onClick={submitSearch}
-        className={`flex items-center justify-center  ${ButtonInfo ? ButtonInfo : "w-16 h-15"} rounded-full bg-yellow-400 hover:bg-yellow-500 transition-all duration-300 shadow-md`}
+        className={`flex items-center justify-center ${ButtonInfo ? ButtonInfo : "w-16 h-15"} rounded-full bg-yellow-400 hover:bg-yellow-500 transition-all duration-300 shadow-md`}
       >
         <svg
           className="w-8 h-8 text-white"
