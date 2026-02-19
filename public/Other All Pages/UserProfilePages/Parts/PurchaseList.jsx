@@ -4,11 +4,11 @@ import { getCurrentUser } from "../../../../src/utils/session";
 import { fetchDownloadLink, fetchPurchases } from "../../../../src/api/userLibrary";
 
 const columns = [
-  { label: "Title", key: "title", subKey: "by", label2: "by", align: "left" },
-  { label: "Genres", key: "genres" },
-  { label: "Mood", key: "mood" },
-  { label: "Artists", key: "artists" },
-  { label: "Link", key: "link" },
+  { label: "Title", key: "title", subKey: "by", label2: "by", align: "left", width: "2.2fr" },
+  { label: "Genres", key: "genres", width: "1fr" },
+  { label: "Mood", key: "mood", width: "1fr" },
+  { label: "Artists", key: "artists", width: "1fr" },
+  { label: "Link", key: "link", width: "1fr" },
 ];
 
 export default function PurchaseList() {
@@ -70,10 +70,10 @@ export default function PurchaseList() {
         <button
           type="button"
           onClick={() => handleDownload(item.itemType, item.itemId)}
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 transition-colors md:w-auto md:h-auto md:rounded-none md:hover:bg-transparent"
+          className="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 transition-colors md:w-auto md:h-auto md:px-1"
         >
           <span className="md:hidden text-2xl text-gray-700">›</span>
-          <span className="hidden md:inline text-blue-600 hover:text-blue-800 underline cursor-pointer">
+          <span className="hidden md:inline-flex items-center rounded-full bg-slate-100 px-4 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-900 hover:text-white transition-colors cursor-pointer">
             Download
           </span>
         </button>
@@ -88,6 +88,7 @@ export default function PurchaseList() {
       data={loading ? [] : rows}
       columns={columns}
       renderCell={renderCell}
+      variant="profile"
       lastColumnType="link"
       emptyMessage={loading ? "Loading purchases..." : error || "No purchases yet"}
       emptyDescription="Browse through our large section of royalty-free music"

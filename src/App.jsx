@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { AudioPlayerProvider } from "./audio/AudioPlayerContext";
 import GlobalAudioPlayer from "./audio/GlobalAudioPlayer";
 import HomePage from "../public/Other All Pages/HomePage";
@@ -48,7 +48,8 @@ function App() {
     <AudioPlayerProvider>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/Profile" element={<Purchases />} />
+        <Route path="/profile" element={<Purchases />} />
+        <Route path="/Profile" element={<Navigate to="/profile" replace />} />
         <Route path="/Music" element={<MusicMainPage />} />
         <Route path="/purchase/:itemType/:itemId" element={<PurchaseCheckout />} />
 

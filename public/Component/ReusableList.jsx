@@ -20,10 +20,16 @@ export default function ReusableList({
   searchValue,
   onSearchChange,
   onSearchSubmit,
+  variant = "default",
+  desktopColumnTemplate,
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [internalSearch, setInternalSearch] = useState("");
   const { currentTrack, isPlaying, toggle } = useAudioPlayer();
+  const isProfileVariant = variant === "profile";
+  const resolvedDesktopGridTemplate =
+    desktopColumnTemplate ||
+    columns.map((column) => column.width || "1fr").join(" ");
 
   const controlledSearch = searchValue !== undefined;
   const activeSearchValue = controlledSearch ? searchValue : internalSearch;
@@ -56,7 +62,13 @@ export default function ReusableList({
   };
 
   return (
-    <div className="w-full bg-white rounded-xl shadow mt-5 pb-6 px-4 sm:px-6">
+    <div
+      className={`w-full bg-white rounded-xl shadow mt-5 pb-6 px-4 sm:px-6 ${
+        isProfileVariant
+          ? "border border-slate-200/90 shadow-lg shadow-slate-900/5 lg:px-8"
+          : ""
+      }`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-4 md:mb-6">
         <h2 className="text-lg sm:text-xl md:text-2xl font-semibold flex-1 text-left">
@@ -65,7 +77,9 @@ export default function ReusableList({
 
         <div className="hidden md:block">
           <SearchBar
-            classess="w-[28rem] lg:w-[32rem] rounded-full border border-gray-300 shadow-sm bg-white/80 h-12"
+            classess={`w-[28rem] rounded-full border border-gray-300 shadow-sm bg-white/80 h-12 ${
+              isProfileVariant ? "lg:w-[38rem]" : "lg:w-[32rem]"
+            }`}
             placeholder={searchPlaceholder}
             ButtonInfo="w-14 h-full"
             value={activeSearchValue}
@@ -252,12 +266,22 @@ export default function ReusableList({
           </div>
 
           {/* Desktop Table */}
-          <div className="hidden md:block">
+          <div
+            className={`hidden md:block ${
+              isProfileVariant
+                ? "rounded-2xl border border-slate-200 overflow-hidden bg-white"
+                : ""
+            }`}
+          >
             {/* Table Head */}
             <div
-              className="grid gap-0 bg-black text-white px-4 py-3 rounded-lg text-sm font-medium text-center"
+              className={`grid gap-0 text-white text-center ${
+                isProfileVariant
+                  ? "bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 px-6 py-3.5 text-xs font-semibold uppercase tracking-wide"
+                  : "bg-black px-4 py-3 rounded-lg text-sm font-medium"
+              }`}
               style={{
-                gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
+                gridTemplateColumns: resolvedDesktopGridTemplate,
               }}
             >
               {columns.map((column, idx) => (
@@ -271,15 +295,19 @@ export default function ReusableList({
             </div>
 
             <div>
-	              {data.map((item, index) => (
-	                <div
-	                  key={index}
-	                  className="grid gap-0 items-center px-4 py-4 text-sm text-center hover:scale-101 transition-all duration-300 cursor-pointer"
-                  style={{
-                    gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
-                  }}
-                  onClick={() => onRowClick && onRowClick(item)}
-                >
+		              {data.map((item, index) => (
+		                <div
+		                  key={index}
+		                  className={`grid gap-0 items-center text-center transition-all duration-200 cursor-pointer ${
+		                    isProfileVariant
+		                      ? "px-6 py-4 text-sm text-slate-700 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/90"
+		                      : "px-4 py-4 text-sm hover:bg-black/[0.02]"
+		                  }`}
+	                  style={{
+	                    gridTemplateColumns: resolvedDesktopGridTemplate,
+	                  }}
+	                  onClick={() => onRowClick && onRowClick(item)}
+	                >
 	                  {columns.map((column, colIdx) => {
 	                    const isLastColumn = colIdx === columns.length - 1;
 
@@ -297,12 +325,12 @@ export default function ReusableList({
 	                    const isFirstColumn = colIdx === 0;
 	                    const itemIsPlaying = isItemPlaying(item);
 	                    return (
-	                      <div
-	                        key={colIdx}
-	                        className={isFirstColumn ? "flex items-center gap-3 text-left" : ""}
-	                      >
-	                        {isFirstColumn ? (
-	                          <>
+		                      <div
+		                        key={colIdx}
+		                        className={isFirstColumn ? "flex items-center gap-3 text-left" : ""}
+		                      >
+		                        {isFirstColumn ? (
+		                          <>
 	                            <button
 	                              type="button"
 	                              className={`flex-shrink-0 ${
@@ -362,12 +390,20 @@ export default function ReusableList({
 	                                )}
 	                              </svg>
 	                            </button>
-	                            <div className="flex flex-col">
-	                              <p className="font-medium">{item[column.key]}</p>
-	                              {column.subKey && (
-                                <p className="text-gray-500 text-xs">
-                                  {column.label2} {item[column.subKey]}
-                                </p>
+		                            <div className="flex flex-col">
+		                              <p
+		                                className={
+		                                  isProfileVariant
+		                                    ? "font-semibold text-slate-900"
+		                                    : "font-medium"
+		                                }
+		                              >
+		                                {item[column.key]}
+		                              </p>
+		                              {column.subKey && (
+	                                <p className="text-gray-500 text-xs">
+	                                  {column.label2} {item[column.subKey]}
+	                                </p>
                               )}
                             </div>
                           </>

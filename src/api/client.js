@@ -57,6 +57,9 @@ const shouldHandleUnauthorizedGlobally = (path = "") => {
     "/accounts/login/owner",
     "/accounts/register",
     "/accounts/verify-otp",
+    "/accounts/resend-otp",
+    "/accounts/request-password-reset",
+    "/accounts/reset-password",
   ]);
 
   return !publicAuthPaths.has(normalizedPath);

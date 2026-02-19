@@ -5,7 +5,8 @@ import Button from "../components/Button";
 import bgImg from "../../../assets/Images/image 34.png";
 import { FcGoogle } from "react-icons/fc";
 import { registerUser } from "../../../src/api/auth";
-import { setSession } from "../../../src/utils/session";
+
+const OTP_FLOW_KEY = "otpFlow";
 
 export default function UserSignup() {
   const [formData, setFormData] = useState({
@@ -60,9 +61,22 @@ export default function UserSignup() {
         role: formData.Role,
       });
 
-      setSession({ token: response.token, user: response.user });
-      sessionStorage.setItem("desktopMode", "true");
-      navigate("/owner/dashboard");
+      sessionStorage.setItem(
+        OTP_FLOW_KEY,
+        JSON.stringify({
+          email: formData.email,
+          role: "owner",
+          purpose: "signup",
+        }),
+      );
+      navigate("/owner/verify", {
+        state: {
+          email: formData.email,
+          purpose: "signup",
+          role: "owner",
+          message: response.message,
+        },
+      });
     } catch (err) {
       setError(err.message || "Signup failed");
     } finally {

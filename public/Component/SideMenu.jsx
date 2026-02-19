@@ -134,17 +134,17 @@ export function SideMenu({ openProfileMenu, setCurrentPart }) {
             {
               id: 0,
               title: "Purchase",
-              path: "/Profile",
+              path: "/profile",
             },
             {
               id: 1,
               title: "Favourite",
-              path: "/Profile",
+              path: "/profile",
             },
             {
               id: 2,
               title: "User Info",
-              path: "/Profile",
+              path: "/profile",
             },
           ].map((section) => (
             <div

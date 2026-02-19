@@ -1,19 +1,43 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import bgImg from "../../../assets/Images/image 34.png";
+import { resetPassword } from "../../../src/api/auth";
 
-export default function UserNewPassword() {
+const OTP_FLOW_KEY = "otpFlow";
+
+const readStoredFlow = () => {
+  try {
+    return JSON.parse(sessionStorage.getItem(OTP_FLOW_KEY) || "null");
+  } catch {
+    return null;
+  }
+};
+
+export default function OwnerNewPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const flow = useMemo(() => readStoredFlow(), []);
+
+  useEffect(() => {
+    if (
+      !flow?.email ||
+      flow?.purpose !== "password_reset" ||
+      flow?.role !== "owner" ||
+      !flow?.otp
+    ) {
+      navigate("/owner/forgot-password", { replace: true });
+    }
+  }, [flow, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!password || !confirmPassword) {
       setError("Please fill in all fields");
       return;
@@ -29,10 +53,21 @@ export default function UserNewPassword() {
       return;
     }
 
-    console.log("New Password Set");
-
-    // Navigate to success page
-    navigate("/owner/success");
+    try {
+      setLoading(true);
+      setError("");
+      await resetPassword({
+        email: flow.email,
+        otp: flow.otp,
+        newPassword: password,
+      });
+      sessionStorage.removeItem(OTP_FLOW_KEY);
+      navigate("/owner/success", { replace: true });
+    } catch (err) {
+      setError(err.message || "Failed to reset password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,88 +97,84 @@ export default function UserNewPassword() {
       </div>
 
       {/* RIGHT FORM */}
-     <div className="w-full md:w-1/2 lg:w-2/3 flex flex-col items-center p-4">
-  <div className="md:hidden fixed top-4 left-3 z-50 mb-7">
-  <button
-    onClick={() => navigate(-1)}
-    className="flex items-center gap-1 text-gray-800 hover:text-black 
+      <div className="w-full md:w-1/2 lg:w-2/3 flex flex-col items-center p-4">
+        <div className="md:hidden fixed top-4 left-3 z-50 mb-7">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1 text-gray-800 hover:text-black 
                font-medium text-sm transition-colors"
-  >
-    <span className="text-xl font-bold">‹</span> 
-    <span>Back</span>
-  </button>
-</div>
+          >
+            <span className="text-xl font-bold">‹</span>
+            <span>Back</span>
+          </button>
+        </div>
 
+        <div className="w-full lg:w-[70%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mx-auto flex flex-col space-y-10 sm:space-y-0 mt-16 sm:mt-20">
+          {/* Heading */}
+          <div className="space-y-3">
+            <h2 className="text-3xl font-bold">Reset Password</h2>
+            <p className="text-gray-500 leading-relaxed text-sm">
+              Please type something you will remember
+            </p>
+          </div>
 
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="mt-10 sm:mt-8 space-y-6">
+            <div>
+              <label className="block font-semibold mb-2 text-gray-700">
+                New Password
+              </label>
+              <Input
+                type="password"
+                placeholder="Must be 8 characters"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
+                className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
+              />
+            </div>
 
-  <div className="w-full lg:w-[70%] bg-opacity-90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mx-auto flex flex-col space-y-10 sm:space-y-0 mt-16 sm:mt-20">
+            <div>
+              <label className="block font-semibold mb-2 text-gray-700">
+                Confirm Password
+              </label>
+              <Input
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setError("");
+                }}
+                className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
+              />
+            </div>
 
-    {/* Heading */}
-    <div className="space-y-3">
-      <h2 className="text-3xl font-bold">Reset Password</h2>
-      <p className="text-gray-500 leading-relaxed text-sm">
-        Please type something you will remember
-      </p>
-    </div>
+            {error && (
+              <p className="text-sm text-red-500 font-medium">{error}</p>
+            )}
 
-    {/* Form */}
-    <form onSubmit={handleSubmit} className="mt-10 sm:mt-8 space-y-6">
-      <div>
-        <label className="block font-semibold mb-2 text-gray-700">
-          New Password
-        </label>
-        <Input
-          type="password"
-          placeholder="Must be 8 characters"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            setError("");
-          }}
-          className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
-        />
+            <Button
+              type="submit"
+              className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
+              text={loading ? "Setting..." : "Set Password"}
+            />
+          </form>
+
+          {/* Bottom Text */}
+          <p className="mt-12 sm:mt-8 text-center text-gray-500">
+            Remember Password?{" "}
+            <span
+              className="font-bold cursor-pointer text-gray-700 hover:text-black"
+              onClick={() => navigate("/owner/login")}
+            >
+              Login
+            </span>
+          </p>
+        </div>
       </div>
-
-      <div>
-        <label className="block font-semibold mb-2 text-gray-700">
-          Confirm Password
-        </label>
-        <Input
-          type="password"
-          placeholder="Confirm password"
-          value={confirmPassword}
-          onChange={(e) => {
-            setConfirmPassword(e.target.value);
-            setError("");
-          }}
-          className="w-full px-4 py-3 border-2 rounded-lg border-gray-300 focus:border-gray-600 placeholder-gray-500 h-12"
-        />
-      </div>
-
-      {error && (
-        <p className="text-sm text-red-500 font-medium">{error}</p>
-      )}
-
-      <Button
-        type="submit"
-        className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-        text="Set Password"
-      />
-    </form>
-
-    {/* Bottom Text */}
-    <p className="mt-12 sm:mt-8 text-center text-gray-500">
-      Remember Password?{" "}
-      <span
-        className="font-bold cursor-pointer text-gray-700 hover:text-black"
-        onClick={() => navigate("/owner/login")}
-      >
-        Login
-      </span>
-    </p>
-  </div>
-</div>
-
     </div>
   );
 }

@@ -9,6 +9,10 @@ import { SideMenu } from "../../Component/SideMenu";
 import { getAuthToken, getCurrentUser } from "../../../src/utils/session";
 
 const PROFILE_TAB_KEY = "UserProfileTab";
+const getValidProfileTab = (value) => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 2 ? parsed : 0;
+};
 
 function Purchases() {
   const navigate = useNavigate();
@@ -24,7 +28,7 @@ function Purchases() {
 
   const [CurrentPart, setCurrentPart] = useState(() => {
     try {
-      return Number(localStorage.getItem(PROFILE_TAB_KEY)) || 0;
+      return getValidProfileTab(localStorage.getItem(PROFILE_TAB_KEY));
     } catch {
       return 0;
     }
@@ -44,7 +48,7 @@ function Purchases() {
       content = <UserInfo />;
       break;
     default:
-      content = null;
+      content = <PurchaseList />;
   }
 
   return (
@@ -74,7 +78,9 @@ function Purchases() {
         storageKey={PROFILE_TAB_KEY}
       />
 
-      <div className="w-full max-w-5xl mx-auto px-4 md:px-0">{content}</div>
+      <div className="w-full max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-2 lg:px-4">
+        {content}
+      </div>
     </>
   );
 }

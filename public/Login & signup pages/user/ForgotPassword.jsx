@@ -3,13 +3,17 @@ import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import bgImg from "../../../assets/Images/image 34.png";
+import { requestPasswordReset } from "../../../src/api/auth";
+
+const OTP_FLOW_KEY = "otpFlow";
 
 export default function UserForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email) {
@@ -17,9 +21,26 @@ export default function UserForgotPassword() {
       return;
     }
 
-    setTimeout(() => {
-      navigate("/user/verify");
-    }, 2000);
+    try {
+      setLoading(true);
+      setError("");
+      await requestPasswordReset({ email });
+      sessionStorage.setItem(
+        OTP_FLOW_KEY,
+        JSON.stringify({
+          email,
+          role: "user",
+          purpose: "password_reset",
+        }),
+      );
+      navigate("/user/verify", {
+        state: { email, purpose: "password_reset", role: "user" },
+      });
+    } catch (err) {
+      setError(err.message || "Failed to send OTP");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,7 +113,7 @@ export default function UserForgotPassword() {
             <Button
               type="submit"
               className="w-full h-12 bg-red-600/80 hover:bg-red-700/90 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
-              text="Submit"
+              text={loading ? "Sending..." : "Submit"}
             />
           </form>
 
