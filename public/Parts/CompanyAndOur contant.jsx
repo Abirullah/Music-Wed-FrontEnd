@@ -10,6 +10,7 @@ import {
   wynkmMusicIcon,
 } from "../../assets/Icons/IconExporter";
 import { fetchTopOwnerInsights } from "../../src/api/catalog";
+import { getCurrentUser } from "../../src/utils/session";
 
 const formatCurrencyUsd = (value = 0) =>
   new Intl.NumberFormat("en-US", {
@@ -73,6 +74,7 @@ function MiniOwnerChart({ labels = [], series = [] }) {
 }
 
 function CompanyAndOurContant() {
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [insights, setInsights] = useState(null);
 
   const features = [
@@ -107,7 +109,10 @@ function CompanyAndOurContant() {
       try {
         const response = await fetchTopOwnerInsights();
         if (!active) return;
-        setInsights(response || null);
+        const normalized = response?.data && typeof response.data === "object"
+          ? response.data
+          : response;
+        setInsights(normalized || null);
       } catch {
         if (!active) return;
         setInsights(null);
@@ -121,7 +126,22 @@ function CompanyAndOurContant() {
     };
   }, []);
 
-  const ownerName = insights?.owner?.name || "Top Owner";
+  const ownerName = useMemo(() => {
+    const candidates = [
+      insights?.owner?.name,
+      insights?.owner?.fullName,
+      insights?.ownerName,
+      insights?.topOwnerName,
+      insights?.name,
+      currentUser?.fullName,
+    ];
+
+    const resolved = candidates.find(
+      (value) => typeof value === "string" && value.trim().length,
+    );
+
+    return resolved || "Top Owner";
+  }, [insights, currentUser?.fullName]);
   const labels = useMemo(() => {
     const raw = Array.isArray(insights?.labels) ? insights.labels : [];
     return raw.length ? raw.slice(0, 6) : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
