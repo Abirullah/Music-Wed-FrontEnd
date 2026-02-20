@@ -34,7 +34,7 @@ export default function UserLogin() {
   };
 
   const handleGoogleLogin = () => {
-    window.open("http://localhost:5000/auth/google", "_self");
+    window.open("http://localhost:5000/auth/google?role=user", "_self");
   };
 
   return (

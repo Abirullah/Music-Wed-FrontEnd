@@ -16,7 +16,7 @@ export default function UserLogin() {
   const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
-    window.open("http://localhost:5000/auth/google", "_self");
+    window.open("http://localhost:5000/auth/google?role=owner", "_self");
   };
 
 
