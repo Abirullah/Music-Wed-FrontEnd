@@ -22,6 +22,7 @@ import OwnerForgotPassword from "../public/Login & signup pages/owner/ForgotPass
 import OwnerVerify from "../public/Login & signup pages/owner/Verify";
 import OwnerNewPassword from "../public/Login & signup pages/owner/NewPassword";
 import OwnerSuccess from "../public/Login & signup pages/owner/Success";
+import GoogleAuthSuccess from "./pages/GoogleAuthSuccess";
 
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
         <Route path="/profile" element={<Purchases />} />
         <Route path="/Profile" element={<Navigate to="/profile" replace />} />
         <Route path="/Music" element={<MusicMainPage />} />
+        <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
         <Route path="/purchase/:itemType/:itemId" element={<PurchaseCheckout />} />
 
         {/* User Auth Routes */}

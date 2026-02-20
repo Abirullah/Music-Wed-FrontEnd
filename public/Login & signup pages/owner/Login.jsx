@@ -15,6 +15,10 @@ export default function UserLogin() {
 
   const navigate = useNavigate();
 
+  const handleGoogleLogin = () => {
+    window.open("http://localhost:5000/auth/google", "_self");
+  };
+
 
     const handleLogin = async (e) => {
       e.preventDefault();
@@ -147,8 +151,9 @@ export default function UserLogin() {
           </form>
 
           <button
+            type="button"
             className="w-full h-12 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-gray-300 mt-6 flex items-center justify-center gap-3"
-            onClick={() => console.log("Google login clicked")}
+            onClick={handleGoogleLogin}
           >
             <FcGoogle className="text-xl" />
             <span className="text-sm font-medium">Continue with Google</span>
