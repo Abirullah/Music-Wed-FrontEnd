@@ -50,7 +50,7 @@ export default function UserLogin() {
   };
 
   const handleGoogleLogin = () => {
-    window.open("http://localhost:5000/auth/google?role=user", "_self");
+    window.open("https://echotuneapp.vercel.app/auth/google?role=user", "_self");
   };
 
   return (

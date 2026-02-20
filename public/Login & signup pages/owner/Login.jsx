@@ -32,7 +32,7 @@ export default function UserLogin() {
   }, [searchParams, setSearchParams]);
 
   const handleGoogleLogin = () => {
-    window.open("http://localhost:5000/auth/google?role=owner", "_self");
+    window.open("https://echotuneapp.vercel.app/auth/google?role=owner", "_self");
   };
 
 
