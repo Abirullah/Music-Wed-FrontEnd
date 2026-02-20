@@ -83,7 +83,7 @@ export default function UserLogin() {
   <button
     onClick={() => navigate("/")}
     className="flex items-center gap-1 text-gray-800 hover:text-black 
-               font-medium text-sm transition-colors"
+               font-medium text-sm transition-colors cursor-pointer"
   >
     <span className="text-xl font-bold">‹</span> 
     <span>Back</span>
@@ -96,7 +96,7 @@ export default function UserLogin() {
             <button
               type="button"
               onClick={() => navigate("/user/login")}
-              className={`flex-1 py-3 rounded-md text-center  font-medium transition-all duration-200 bg-black text-white`}
+              className={`flex-1 py-3 rounded-md text-center cursor-pointer font-medium transition-all duration-200 bg-black text-white`}
             >
               User
             </button>
@@ -105,7 +105,7 @@ export default function UserLogin() {
               type="button"
               onClick={() => navigate("/owner/login")}
               className={`flex-1 py-3 rounded-md text-center font-medium transition-all duration-200 
-                bg-white text-gray-700 `}
+                bg-white text-gray-700 cursor-pointer`}
             >
               Owner
             </button>
@@ -161,7 +161,7 @@ export default function UserLogin() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full h-12 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-gray-300 mt-6 flex items-center justify-center gap-3"
+            className="w-full h-12 bg-white cursor-pointer hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-gray-300 mt-6 flex items-center justify-center gap-3"
           >
             <FcGoogle className="text-xl" />
             <span className="text-sm font-medium">Continue with Google</span>
@@ -186,7 +186,7 @@ export default function UserLogin() {
 
             <button
               onClick={() => navigate("/user/signup")}
-              className="w-full h-12 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-gray-300 mt-6 flex items-center justify-center gap-3"
+              className="w-full h-12 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-gray-300 mt-6 flex items-center justify-center gap-3 cursor-pointer"
             >
               Create Your Account
             </button>
