@@ -48,6 +48,7 @@ function App() {
     <AudioPlayerProvider>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/dashboard" element={<HomePage />} />
         <Route path="/profile" element={<Purchases />} />
         <Route path="/Profile" element={<Navigate to="/profile" replace />} />
         <Route path="/Music" element={<MusicMainPage />} />
