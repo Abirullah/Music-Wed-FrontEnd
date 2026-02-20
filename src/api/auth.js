@@ -1,4 +1,14 @@
-import { apiRequest } from "./client";
+import { API_BASE_URL, apiRequest } from "./client";
+
+const normalizeGoogleRoleContext = (role) =>
+  String(role || "user").toLowerCase() === "owner" ? "owner" : "user";
+
+export const getGoogleAuthUrl = (role = "user") => {
+  const requestedRole = normalizeGoogleRoleContext(role);
+  const authUrl = new URL("/auth/google", API_BASE_URL);
+  authUrl.searchParams.set("role", requestedRole);
+  return authUrl.toString();
+};
 
 export const registerUser = async ({ fullName, email, password, role }) => {
   return apiRequest("/accounts/register", {

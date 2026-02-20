@@ -4,7 +4,7 @@ import Input from "../components/Input";
 import Button from "../components/Button"
 import bgImg from "../../../assets/Images/image 34.png";
 import { FcGoogle } from "react-icons/fc";
-import { loginOwner } from "../../../src/api/auth";
+import { getGoogleAuthUrl, loginOwner } from "../../../src/api/auth";
 import { setSession } from "../../../src/utils/session";
 
 export default function UserLogin() {
@@ -32,7 +32,7 @@ export default function UserLogin() {
   }, [searchParams, setSearchParams]);
 
   const handleGoogleLogin = () => {
-    window.open("https://echotuneapp.vercel.app/auth/google?role=owner", "_self");
+    window.location.assign(getGoogleAuthUrl("owner"));
   };
 
 

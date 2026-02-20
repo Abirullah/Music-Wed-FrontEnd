@@ -4,7 +4,7 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import bgImg from "../../../assets/Images/image 34.png";
 import { FcGoogle } from "react-icons/fc";
-import { registerUser } from "../../../src/api/auth";
+import { getGoogleAuthUrl, registerUser } from "../../../src/api/auth";
 
 const OTP_FLOW_KEY = "otpFlow";
 
@@ -82,6 +82,10 @@ export default function UserSignup() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignup = () => {
+    window.location.assign(getGoogleAuthUrl("owner"));
   };
 
   return (
@@ -193,7 +197,11 @@ export default function UserSignup() {
           </form>
 
           {/* GOOGLE SIGNUP */}
-          <button className="w-full h-12 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-lg transition-all duration-200 border border-gray-300 mt-6 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={handleGoogleSignup}
+            className="w-full h-12 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-lg transition-all duration-200 border border-gray-300 mt-6 flex items-center justify-center gap-3"
+          >
             <FcGoogle className="text-xl" />
             <span className="text-sm font-medium">Continue with Google</span>
           </button>
