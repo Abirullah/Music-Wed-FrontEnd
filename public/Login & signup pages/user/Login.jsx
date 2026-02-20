@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Input from "../components/Input";
 import Button from "../components/Button"
 import bgImg from "../../../assets/Images/image 34.png";
@@ -14,6 +14,22 @@ export default function UserLogin() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const googleError = String(searchParams.get("googleError") || "").trim();
+    if (!googleError) return;
+
+    if (googleError === "role_mismatch") {
+      setError("This Google account is registered as owner. Please use Owner login.");
+    } else {
+      setError("Google sign-in failed. Please try again.");
+    }
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("googleError");
+    setSearchParams(nextParams, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
