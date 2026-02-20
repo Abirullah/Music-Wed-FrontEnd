@@ -14,6 +14,8 @@ export default function OwnerAccountSettings() {
   const [fullName, setFullName] = useState(currentUser?.fullName || "");
   const [email, setEmail] = useState(currentUser?.email || "");
   const [profilePic, setProfilePic] = useState(currentUser?.profilePicture || null);
+  const [profilePicFile, setProfilePicFile] = useState(null);
+  const [removeProfilePic, setRemoveProfilePic] = useState(false);
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -36,6 +38,13 @@ export default function OwnerAccountSettings() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 12 * 1024 * 1024) {
+      setStatus({ type: "error", message: "Please upload an image smaller than 12MB." });
+      return;
+    }
+
+    setProfilePicFile(file);
+    setRemoveProfilePic(false);
     const reader = new FileReader();
     reader.onload = () => setProfilePic(String(reader.result || ""));
     reader.readAsDataURL(file);
@@ -90,22 +99,32 @@ export default function OwnerAccountSettings() {
     try {
       setSaving(true);
 
-      const payload = {
-        fullName: nextFullName,
-        email: nextEmail,
-      };
+      const payload = new FormData();
+      payload.append("fullName", nextFullName);
+      payload.append("email", nextEmail);
 
-      if (profilePic) {
-        payload.profilePicture = profilePic;
+      if (profilePicFile) {
+        payload.append("profilePictureFile", profilePicFile);
+      }
+
+      if (removeProfilePic && !profilePicFile) {
+        payload.append("removeProfilePicture", "true");
       }
 
       if (wantsPasswordChange) {
-        payload.oldPassword = oldPassword;
-        payload.newPassword = newPassword;
+        payload.append("oldPassword", oldPassword);
+        payload.append("newPassword", newPassword);
       }
 
       const response = await updateAccount(currentUser.id, payload);
       const user = response.user || {};
+      const persistedProfilePicture =
+        user.profilePicture ??
+        (removeProfilePic ? null : currentUser.profilePicture || null);
+
+      setProfilePic(persistedProfilePicture);
+      setProfilePicFile(null);
+      setRemoveProfilePic(false);
 
       updateCurrentUser({
         id: user.id || currentUser.id,
@@ -113,7 +132,7 @@ export default function OwnerAccountSettings() {
         email: user.email || nextEmail,
         role: user.role || user.Role || currentUser.role,
         Role: user.role || user.Role || currentUser.Role,
-        profilePicture: user.profilePicture || profilePic || null,
+        profilePicture: persistedProfilePicture,
       });
 
       setOldPassword("");
@@ -191,7 +210,11 @@ export default function OwnerAccountSettings() {
               {profilePic && (
                 <button
                   type="button"
-                  onClick={() => setProfilePic(null)}
+                  onClick={() => {
+                    setProfilePic(null);
+                    setProfilePicFile(null);
+                    setRemoveProfilePic(true);
+                  }}
                   className="inline-flex items-center justify-center rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-200"
                 >
                   Remove

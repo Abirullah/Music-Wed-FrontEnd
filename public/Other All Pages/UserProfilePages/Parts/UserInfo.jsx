@@ -11,6 +11,7 @@ export default function UserInfo() {
   const [fullName, setFullName] = useState(currentUser?.fullName || "");
   const [email, setEmail] = useState(currentUser?.email || "");
   const [profilePicture, setProfilePicture] = useState(currentUser?.profilePicture || "");
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,6 +27,7 @@ export default function UserInfo() {
       return;
     }
 
+    setProfilePictureFile(file);
     const reader = new FileReader();
     reader.onload = () => setProfilePicture(String(reader.result || ""));
     reader.readAsDataURL(file);
@@ -46,22 +48,25 @@ export default function UserInfo() {
       setSaving(true);
       setStatus("");
 
-      const payload = {
-        fullName,
-        email,
-      };
-
-      if (profilePicture) {
-        payload.profilePicture = profilePicture;
+      const payload = new FormData();
+      payload.append("fullName", fullName);
+      payload.append("email", email);
+      if (profilePictureFile) {
+        payload.append("profilePictureFile", profilePictureFile);
       }
 
       if (newPassword) {
-        payload.oldPassword = oldPassword;
-        payload.newPassword = newPassword;
+        payload.append("oldPassword", oldPassword);
+        payload.append("newPassword", newPassword);
       }
 
       const response = await updateAccount(currentUser.id, payload);
       const user = response.user || {};
+      const persistedProfilePicture =
+        user.profilePicture || currentUser.profilePicture || null;
+
+      setProfilePicture(persistedProfilePicture || "");
+      setProfilePictureFile(null);
 
       updateCurrentUser({
         id: user.id || currentUser.id,
@@ -69,7 +74,7 @@ export default function UserInfo() {
         email: user.email || email,
         role: user.role || user.Role || currentUser.role,
         Role: user.role || user.Role || currentUser.Role,
-        profilePicture: user.profilePicture || profilePicture || null,
+        profilePicture: persistedProfilePicture,
       });
 
       setOldPassword("");
